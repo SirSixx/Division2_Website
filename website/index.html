@@ -1,0 +1,229 @@
+<!-- Division 2 — SHD Field Toolkit · Index -->
+<!--
+  ══════════════════════════════════════════════════════════════════
+  FILE LINKS — update these hrefs if your filenames differ
+  ══════════════════════════════════════════════════════════════════
+  Talents     → division2-talent-lookup.html
+  Weapons     → division2-weapons.html
+  Gear        → division2-gear.html
+  Attributes  → division2-attributes.html
+  Builds      → division2-builds.html   (not yet built — card is disabled)
+  ══════════════════════════════════════════════════════════════════
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHD Field Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>:root{
+  --red:#e0524a;
+  --blue:#4a9ed4;
+  --purple:#9b6fe0;
+  --green:#54c06e;
+}
+
+  /* ── intro strip ── */
+  .intro{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
+    padding:12px 16px;margin-bottom:22px;
+    font-size:.72rem;line-height:1.55;color:var(--muted)}
+  .intro b{color:var(--text);font-weight:500}
+
+  /* ── tool grid ── */
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
+
+  .tool-card{
+    background:var(--panel);border:1px solid var(--line);
+    position:relative;padding:20px 22px 22px;overflow:hidden;
+    text-decoration:none;color:inherit;display:block;
+    transition:border-color .15s,background .15s;
+  }
+  .tool-card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:var(--c,var(--amber));
+  }
+  /* per-colour hover rings */
+  .tool-card:hover{background:var(--panel-2)}
+  .tool-card.amber:hover{border-color:rgba(255,140,26,.35)}
+  .tool-card.red{--c:var(--red)}.tool-card.red:hover{border-color:rgba(224,82,74,.35)}
+  .tool-card.blue{--c:var(--blue)}.tool-card.blue:hover{border-color:rgba(74,158,212,.35)}
+  .tool-card.purple{--c:var(--purple)}.tool-card.purple:hover{border-color:rgba(155,111,224,.35)}
+  /* disabled — Builds not yet built */
+  .tool-card.wip{pointer-events:none;opacity:.6}
+
+  .card-eyebrow{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--c,var(--amber));margin-bottom:10px}
+  .card-title{font-family:var(--display);font-weight:600;letter-spacing:.1em;
+    text-transform:uppercase;font-size:1.5rem;line-height:1;color:var(--text);margin:0 0 10px}
+  .card-desc{font-size:.76rem;line-height:1.55;color:#bdc2c9;margin:0 0 16px}
+  .card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .tag{font-family:var(--display);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    padding:4px 9px;border:1px solid var(--line-bright);color:var(--muted)}
+  .card-cta{font-family:var(--display);font-size:.72rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--c,var(--amber));display:flex;align-items:center;gap:8px}
+  .card-cta::after{content:"→"}
+
+  .wip-badge{position:absolute;top:14px;right:14px;
+    font-family:var(--display);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;
+    padding:4px 9px;border:1px solid var(--purple);color:var(--purple);background:rgba(155,111,224,.1)}
+
+  /* ── legend ── */
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;padding:13px 16px;
+    background:var(--panel);border:1px solid var(--line)}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:.64rem;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .legend-dot{width:10px;height:10px;flex:0 0 10px;transform:rotate(45deg)}
+
+  @media(max-width:520px){
+    .grid{grid-template-columns:1fr}
+  }
+
+  /* page override: keep the hub narrower than the data pages */
+  .wrap{max-width:980px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="sigil" aria-hidden="true"></div>
+      <div>
+        <h1>SHD Field Toolkit</h1>
+        <div class="sub">Build Planning · Solo PvE · Warlords of New York</div>
+      </div>
+    </div>
+    <div class="status">AGENT LVL 40<br>TOOLKIT: <b>ACTIVE</b></div>
+  </header>
+
+  <nav class="topnav" aria-label="Section">
+    <a href="index.html" class="active">Home</a>
+    <a href="division2-talent-lookup.html">Talents</a>
+    <a href="division2-weapons.html">Weapons</a>
+    <a href="division2-gear.html">Gear</a>
+    <a href="division2-attributes.html">Attributes</a>
+    <span class="soon">Builds</span>
+  </nav>
+
+  <div class="intro">
+    Quick-reference suite for loot triage, weapon evaluation, and build planning.
+    All verdicts are tuned for a <b>solo Level 40 PvE player</b> working through the Warlords of New York DLC.
+    Talent data sourced from The Division Wiki (Fandom) — cross-reference a live source after balance patches.
+  </div>
+
+  <div class="grid">
+
+    <!-- 01 · Talents -->
+    <a class="tool-card amber" href="division2-talent-lookup.html">
+      <div class="card-eyebrow">Field Reference · 01</div>
+      <h2 class="card-title">Talents</h2>
+      <p class="card-desc">
+        Browse and filter all 39 rollable weapon talents and gear talents.
+        Keep / Situational / Skip verdicts for rapid loot triage at the end of a session.
+      </p>
+      <div class="card-tags">
+        <span class="tag">Weapon Talents</span>
+        <span class="tag">Gear Talents</span>
+        <span class="tag">Loot Triage</span>
+      </div>
+      <div class="card-cta">Open Talents</div>
+    </a>
+
+    <!-- 02 · Weapons -->
+    <a class="tool-card red" href="division2-weapons.html">
+      <div class="card-eyebrow">Field Reference · 02</div>
+      <h2 class="card-title">Weapons</h2>
+      <p class="card-desc">
+        Per-class attribute priorities and talent ratings for every weapon type.
+        Ranked secondary targets so you know what to chase on each drop.
+      </p>
+      <div class="card-tags">
+        <span class="tag">AR</span>
+        <span class="tag">SMG</span>
+        <span class="tag">LMG</span>
+        <span class="tag">Rifle</span>
+        <span class="tag">MMR</span>
+        <span class="tag">Pistol</span>
+        <span class="tag">Shotgun</span>
+      </div>
+      <div class="card-cta">Open Weapons</div>
+    </a>
+
+    <!-- 03 · Gear -->
+    <a class="tool-card blue" href="division2-gear.html">
+      <div class="card-eyebrow">Field Reference · 03</div>
+      <h2 class="card-title">Gear</h2>
+      <p class="card-desc">
+        All 64 sets — 27 gear sets with piece bonuses and 37 brand sets with named items.
+        Colour-coded by build focus so you can scan a drop against your archetype at a glance.
+      </p>
+      <div class="card-tags">
+        <span class="tag">27 Gear Sets</span>
+        <span class="tag">37 Brand Sets</span>
+        <span class="tag">Named Items</span>
+        <span class="tag">Exotics</span>
+      </div>
+      <div class="card-cta">Open Gear</div>
+    </a>
+
+    <!-- 04 · Attributes -->
+    <a class="tool-card" href="division2-attributes.html">
+      <div class="card-eyebrow">Field Reference · 04</div>
+      <h2 class="card-title">Attributes</h2>
+      <p class="card-desc">
+        Secondary stat priorities by build archetype, loot triage rules, and a full attribute glossary.
+        Know what to keep, what to recalibrate, and what to bin after every session.
+      </p>
+      <div class="card-tags">
+        <span class="tag">Loot Triage</span>
+        <span class="tag">DPS · Skill · Tank · Support</span>
+        <span class="tag">Glossary</span>
+      </div>
+      <div class="card-cta">Open Attributes</div>
+    </a>
+
+    <!-- 05 · Builds — WIP -->
+    <div class="tool-card purple wip" aria-disabled="true">
+      <div class="wip-badge">In Progress</div>
+      <div class="card-eyebrow">Field Reference · 05</div>
+      <h2 class="card-title">Builds</h2>
+      <p class="card-desc">
+        Recommended archetypes with target gear sets, talent selections, and stat thresholds.
+        Covers the five core PvE build paths.
+      </p>
+      <div class="card-tags">
+        <span class="tag">DPS</span>
+        <span class="tag">Skill Damage</span>
+        <span class="tag">Skill Healer</span>
+        <span class="tag">Tank</span>
+        <span class="tag">All-Rounder</span>
+      </div>
+      <div class="card-cta">Coming Soon</div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- colour legend -->
+  <div class="legend" aria-label="Build focus colour key">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--red)"></div>
+      Red · Weapon Damage / DPS
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--amber)"></div>
+      Yellow · Skill / Healer
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--blue)"></div>
+      Blue · Armour / Tank
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--purple)"></div>
+      Purple · Hybrid
+    </div>
+  </div>
+
+  <footer>
+    <b>SHD Field Toolkit</b> — personal loot-triage and build-planning reference for solo PvE play (Level 40, Warlords of New York).
+    Talent data sourced from The Division Wiki (Fandom). Verdicts change with balance patches — confirm specifics against a live source before recalibrating gear.
+  </footer>
+</div>

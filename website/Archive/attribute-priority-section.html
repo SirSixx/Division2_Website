@@ -1,0 +1,173 @@
+<!-- The Division 2 — Attribute Priority / Loot Triage section -->
+<!-- Drop this <section> into gear.html. Uses the same --bg/--panel/--amber/--keep/--sit/--skip
+     variables and Oswald+JetBrains Mono fonts as your talent lookup page. If gear.html already
+     defines :root vars via styles.css, delete the :root block below to avoid duplication —
+     values are identical so it's harmless either way, just redundant. -->
+<style>
+  .attr-priority{
+    --bg:#0b0d0f; --panel:#14171b; --panel-2:#191d22; --line:#262c33; --line-bright:#39424c;
+    --text:#e8e6e0; --muted:#8a929b; --amber:#ff8c1a; --amber-dim:#b86413;
+    --keep:#54c06e; --keep-bg:rgba(84,192,110,.10);
+    --sit:#ffb340; --sit-bg:rgba(255,179,64,.10);
+    --skip:#e0524a; --skip-bg:rgba(224,82,74,.10);
+    --display:"Oswald","Arial Narrow",sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,"Courier New",monospace;
+    font-family:var(--mono); color:var(--text); margin-top:40px;
+  }
+  .attr-priority h2.section-title{font-family:var(--display);font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;font-size:1.3rem;margin:0 0 4px;color:var(--text)}
+  .attr-priority .section-sub{font-size:.66rem;letter-spacing:.3em;color:var(--amber);
+    text-transform:uppercase;margin:0 0 20px}
+
+  /* rules callout, matches talent lookup .rules pattern */
+  .attr-priority .rules{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
+    padding:14px 16px;margin-bottom:24px}
+  .attr-priority .rules h3{font-family:var(--display);font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+    font-size:.74rem;color:var(--amber);margin:0 0 10px}
+  .attr-priority .rules ul{margin:0;padding:0;list-style:none;display:grid;gap:7px;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .attr-priority .rules li{font-size:.72rem;line-height:1.5;color:var(--muted);padding-left:16px;position:relative}
+  .attr-priority .rules li::before{content:"›";position:absolute;left:0;color:var(--amber);font-weight:700}
+  .attr-priority .rules li b{color:var(--text);font-weight:500}
+
+  /* build archetype cards */
+  .attr-priority .archetypes{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    margin-bottom:28px}
+  .attr-priority .arch-card{background:var(--panel);border:1px solid var(--line);position:relative;
+    padding:14px 16px 16px;overflow:hidden}
+  .attr-priority .arch-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
+  .attr-priority .arch-card.dps::before{background:#e0524a}
+  .attr-priority .arch-card.skill::before{background:#ffb340}
+  .attr-priority .arch-card.tank::before{background:#4a90e0}
+  .attr-priority .arch-card.support::before{background:var(--keep)}
+  .attr-priority .arch-name{font-family:var(--display);font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;font-size:1rem;margin:0 0 2px}
+  .attr-priority .arch-core{font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;
+    margin-bottom:10px}
+  .attr-priority .arch-core b{color:var(--amber)}
+  .attr-priority .arch-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+  .attr-priority .arch-list li{font-size:.76rem;line-height:1.4;padding-left:20px;position:relative;color:#cfd3d8}
+  .attr-priority .arch-list li .rank{position:absolute;left:0;top:0;font-family:var(--display);font-weight:700;
+    color:var(--amber);font-size:.72rem}
+  .attr-priority .arch-list li b{color:var(--text)}
+  .attr-priority .arch-note{font-size:.7rem;line-height:1.45;color:var(--muted);margin-top:10px;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* attribute glossary */
+  .attr-priority .glossary-head{font-family:var(--display);font-weight:500;letter-spacing:.2em;
+    text-transform:uppercase;font-size:.8rem;color:var(--amber);margin:0 0 12px}
+  .attr-priority .glossary{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+  .attr-priority .glos-cat{background:var(--panel-2);border:1px solid var(--line);padding:12px 14px}
+  .attr-priority .glos-cat h4{font-family:var(--display);font-weight:600;letter-spacing:.1em;
+    text-transform:uppercase;font-size:.72rem;color:var(--text);margin:0 0 8px}
+  .attr-priority .glos-cat dl{margin:0}
+  .attr-priority .glos-cat dt{font-family:var(--display);font-weight:500;letter-spacing:.03em;
+    font-size:.76rem;color:var(--amber);margin-top:8px}
+  .attr-priority .glos-cat dt:first-of-type{margin-top:0}
+  .attr-priority .glos-cat dd{margin:2px 0 0;font-size:.71rem;line-height:1.4;color:var(--muted)}
+
+  .attr-priority footer.note{margin-top:22px;padding-top:14px;border-top:1px solid var(--line);
+    font-size:.64rem;line-height:1.6;color:var(--muted);letter-spacing:.03em}
+  .attr-priority footer.note b{color:var(--muted)}
+</style>
+
+<section class="attr-priority" id="attribute-priority">
+  <h2 class="section-title">Attribute Priority</h2>
+  <div class="section-sub">Secondary Stats by Build Type · Loot Triage</div>
+
+  <div class="rules">
+    <h3>Fast triage rules</h3>
+    <ul>
+      <li>Check <b>Dark Zone exclusive</b> status before deconstructing — Yaahl brand and System Corruption gear set can't be farmed in PvE, so hold onto them.</li>
+      <li><b>Mask / gloves / holster / kneepads</b> only carry core + 1 secondary — easy to re-farm, deconstruct freely unless the roll is genuinely rare.</li>
+      <li><b>Chest / backpack</b> carry 2 secondaries + a talent — three variables to hit at once, so these are worth holding onto more carefully, especially off-core-color rolls.</li>
+      <li><b>Gear-set pieces</b> (green) roll one fewer attribute than high-end (yellow) — easier to replace, so clear these first when you need stash space.</li>
+      <li><b>Named weapons</b> mostly have a fixed talent (exceptions: TDI "Kard" Custom, The Mop, The White Death) — keep your best roll of each, deconstruct extras.</li>
+      <li><b>Mods:</b> keep ~3 of each maxed gear mod, 1 of each skill mod (level 40+ only — usable at 30 too). Stockpile extras on an alt, not your stash.</li>
+      <li>A maxed roll isn't automatically worth keeping — judge it against what the build actually needs first.</li>
+      <li><b>Deconstruct, never sell</b> — you get crafting materials back either way.</li>
+    </ul>
+  </div>
+
+  <div class="archetypes">
+    <div class="arch-card dps">
+      <div class="arch-name">DPS</div>
+      <div class="arch-core">Core: <b>Weapon Damage (Red)</b></div>
+      <ul class="arch-list">
+        <li><span class="rank">1</span><b>Critical Hit Chance</b> — to the 60% hard cap</li>
+        <li><span class="rank">2</span><b>Critical Hit Damage</b> — everything past the CHC cap goes here</li>
+        <li><span class="rank">3</span><b>Headshot Damage</b> — only if the weapon/playstyle is headshot-reliant</li>
+        <li><span class="rank">4</span><b>Weapon Handling</b> — filler / QoL, not a damage stat</li>
+      </ul>
+      <div class="arch-note">Brand sets roll 2 secondaries per item vs. 1 on gear sets — easier to stack Crit Chance + Crit Damage on the same piece.</div>
+    </div>
+
+    <div class="arch-card skill">
+      <div class="arch-name">Skill</div>
+      <div class="arch-core">Core: <b>Skill Tier (Yellow)</b></div>
+      <ul class="arch-list">
+        <li><span class="rank">1</span><b>Skill Damage</b> or <b>Skill Haste</b> — pick per build: big single hits want Damage, spam/uptime wants Haste</li>
+        <li><span class="rank">2</span><b>Skill Repair</b> — only if the build leans on healing/repair-type skills, self or allies</li>
+      </ul>
+      <div class="arch-note">Skill Damage also scales status-effect DPS (bleed/burn/shock ticks), not just direct skill hits.</div>
+    </div>
+
+    <div class="arch-card tank">
+      <div class="arch-name">Tank</div>
+      <div class="arch-core">Core: <b>Armor (Blue)</b></div>
+      <ul class="arch-list">
+        <li><span class="rank">1</span><b>Hazard Protection</b> — softens status/DoT damage</li>
+        <li><span class="rank">2</span><b>Explosive Resistance</b> — softens burst/explosive damage</li>
+        <li><span class="rank">3</span><b>Armor Regeneration</b> — sustain between fights</li>
+        <li><span class="rank">4</span><b>Health</b> — flat buffer once armor breaks</li>
+      </ul>
+      <div class="arch-note">Crit/weapon stats are wasted here — the tank isn't the one pulling the trigger for damage. Mix depends on what's actually hitting the build in that content.</div>
+    </div>
+
+    <div class="arch-card support">
+      <div class="arch-name">Support</div>
+      <div class="arch-core">Core: <b>mixed</b> — depends on skill-support vs. survivability-support lean</div>
+      <ul class="arch-list">
+        <li><span class="rank">1</span><b>Skill Repair</b> — the core support stat, self and allies both</li>
+        <li><span class="rank">2</span><b>Skill Haste</b> — keeps repair/shield skills up more often</li>
+        <li><span class="rank">3</span><b>Armor Regeneration / Health</b> — backstop so the support survives long enough to matter</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="glossary-head">Attribute Glossary</div>
+  <div class="glossary">
+    <div class="glos-cat">
+      <h4>Weapon</h4>
+      <dl>
+        <dt>Weapon Handling</dt><dd>Accuracy, stability, and reload speed of equipped weapons.</dd>
+        <dt>Critical Hit Chance</dt><dd>% chance a shot crits. Hard cap 60% total.</dd>
+        <dt>Critical Hit Damage</dt><dd>Bonus damage multiplier applied on a critical hit.</dd>
+        <dt>Headshot Damage</dt><dd>Bonus damage applied specifically to headshots.</dd>
+      </dl>
+    </div>
+    <div class="glos-cat">
+      <h4>Skill</h4>
+      <dl>
+        <dt>Skill Damage</dt><dd>Increases damage from skills, including status-effect DoT ticks.</dd>
+        <dt>Skill Repair</dt><dd>Increases healing/repair output from skills, to self and allies.</dd>
+        <dt>Skill Haste</dt><dd>Reduces the cooldown/refresh time before a skill can be used again.</dd>
+      </dl>
+    </div>
+    <div class="glos-cat">
+      <h4>Defensive</h4>
+      <dl>
+        <dt>Armor Regeneration</dt><dd>Passive armor repair per second while in combat, after taking damage.</dd>
+        <dt>Hazard Protection</dt><dd>Reduces damage from status effects (bleed, burn, etc).</dd>
+        <dt>Health</dt><dd>Increases the health pool used once armor is depleted.</dd>
+        <dt>Explosive Resistance</dt><dd>Reduces damage taken from explosives.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <footer class="note">
+    <b>Read me:</b> priorities assume solo/small-group level-40 PvE. Attribute definitions and the 60% Crit
+    Hit Chance cap are confirmed from your own notes. Triage rules adapted from community guidance — cross-check
+    against current TU patch notes if something feels off, same as the talent lookup page.
+  </footer>
+</section>

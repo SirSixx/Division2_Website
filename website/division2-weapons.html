@@ -1,0 +1,1545 @@
+<!-- The Division 2 — Weapons & Attributes -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHD Weapons &amp; Attributes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d0f;
+    --panel:#14171b;
+    --panel-2:#191d22;
+    --line:#262c33;
+    --line-bright:#39424c;
+    --text:#e8e6e0;
+    --muted:#8a929b;
+    --amber:#ff8c1a;
+    --amber-dim:#b86413;
+    --keep:#54c06e;
+    --keep-bg:rgba(84,192,110,.10);
+    --sit:#ffb340;
+    --sit-bg:rgba(255,179,64,.10);
+    --skip:#e0524a;
+    --skip-bg:rgba(224,82,74,.10);
+    --display:"Oswald", "Arial Narrow", sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, "Courier New", monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);
+    -webkit-font-smoothing:antialiased}
+  body{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px);
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 18px 80px}
+
+  /* ---- header ---- */
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;
+    border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:0;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .sigil{width:38px;height:38px;flex:0 0 38px;position:relative;transform:rotate(45deg);
+    border:2px solid var(--amber);}
+  .sigil::after{content:"";position:absolute;inset:6px;border:2px solid var(--amber-dim)}
+  .sigil::before{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;
+    margin:-3px 0 0 -3px;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+  h1{font-family:var(--display);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    font-size:1.5rem;margin:0;line-height:1}
+  .sub{font-size:.66rem;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;margin-top:5px}
+  .status{font-size:.62rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;text-align:right}
+  .status b{color:var(--keep)}
+
+  /* ---- shared top nav ---- */
+  nav.topnav{display:flex;gap:2px;margin:0 0 18px;border-bottom:1px solid var(--line);
+    flex-wrap:wrap}
+  nav.topnav a, nav.topnav span{font-family:var(--display);font-weight:500;letter-spacing:.16em;
+    text-transform:uppercase;font-size:.7rem;color:var(--muted);text-decoration:none;
+    padding:11px 16px;border-bottom:2px solid transparent;transition:.12s}
+  nav.topnav a:hover{color:var(--text)}
+  nav.topnav a.active{color:var(--amber);border-bottom-color:var(--amber)}
+  nav.topnav span.soon{color:#565d65;cursor:default;display:flex;align-items:center;gap:6px}
+  nav.topnav span.soon::after{content:"Soon";font-size:.56rem;letter-spacing:.1em;color:#565d65;
+    border:1px solid var(--line-bright);padding:1px 5px}
+
+  .intro{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
+    padding:14px 16px;margin-bottom:18px}
+  .intro h2{font-family:var(--display);font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+    font-size:.74rem;color:var(--amber);margin:0 0 8px}
+  .intro p{margin:0;font-size:.74rem;line-height:1.6;color:var(--muted)}
+  .intro b{color:var(--text);font-weight:500}
+
+  /* ---- class jump chips ---- */
+  .jump{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px}
+  .jump a{font-family:var(--display);font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+    font-size:.66rem;color:var(--muted);background:transparent;border:1px solid var(--line-bright);
+    padding:6px 12px;text-decoration:none;transition:.12s}
+  .jump a:hover{color:var(--bg);background:var(--amber);border-color:var(--amber)}
+
+  /* ---- class section ---- */
+  html{scroll-behavior:smooth}
+  .class-section{margin-bottom:34px;scroll-margin-top:14px}
+  .totop{display:inline-flex;align-items:center;gap:5px;font-family:var(--display);font-weight:500;
+    letter-spacing:.12em;text-transform:uppercase;font-size:.6rem;color:var(--muted);
+    text-decoration:none;margin-bottom:10px;transition:.12s}
+  .totop:hover{color:var(--amber)}
+  .totop svg{width:9px;height:9px;flex:0 0 9px}
+  .class-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+    border-bottom:1px solid var(--line-bright);padding-bottom:10px;margin-bottom:14px;flex-wrap:wrap}
+  .class-head h2{font-family:var(--display);font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    font-size:1.3rem;margin:0}
+  .class-head .tag{font-size:.64rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+
+  .class-body{display:grid;grid-template-columns:280px 1fr;gap:18px}
+  @media (max-width:760px){.class-body{grid-template-columns:1fr}}
+
+  /* attribute priority block */
+  .attrs{background:var(--panel);border:1px solid var(--line);padding:14px 15px}
+  .attrs h3{font-family:var(--display);font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+    font-size:.64rem;color:var(--amber);margin:0 0 12px}
+  .attr-row{display:flex;gap:10px;margin-bottom:12px}
+  .attr-row:last-child{margin-bottom:0}
+  .attr-rank{flex:0 0 20px;font-family:var(--display);font-weight:600;font-size:.78rem;color:var(--amber-dim)}
+  .attr-name{font-size:.78rem;color:var(--text);font-weight:500;line-height:1.3}
+  .attr-note{font-size:.68rem;color:var(--muted);line-height:1.45;margin-top:3px}
+
+  /* talent mini-cards */
+  .talent-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+  .tcard{background:var(--panel);border:1px solid var(--line);position:relative;padding:10px 12px 11px;overflow:hidden}
+  .tcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line-bright)}
+  .tcard.keep::before{background:var(--keep)}
+  .tcard.sit::before{background:var(--sit)}
+  .tcard.skip::before{background:var(--skip)}
+  .ttop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .tname{font-family:var(--display);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:.86rem}
+  .tscope{font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:#565d65;margin-top:2px}
+  .tverdict{flex:0 0 auto;font-family:var(--display);font-weight:600;letter-spacing:.1em;
+    text-transform:uppercase;font-size:.56rem;padding:3px 7px;white-space:nowrap;border:1px solid}
+  .tverdict.keep{color:var(--keep);background:var(--keep-bg);border-color:var(--keep)}
+  .tverdict.sit{color:var(--sit);background:var(--sit-bg);border-color:var(--sit)}
+  .tverdict.skip{color:var(--skip);background:var(--skip-bg);border-color:var(--skip)}
+  .tdesc{font-size:.7rem;line-height:1.45;color:#cfd3d8;margin:8px 0 0}
+  .twhy{font-size:.66rem;line-height:1.4;color:var(--muted);margin:6px 0 0;padding-top:6px;
+    border-top:1px dashed var(--line)}
+  .twhy b{color:var(--amber);font-weight:500}
+
+  .toggle-row{display:flex;gap:7px;margin-bottom:10px}
+  .toggle{font-family:var(--display);font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+    font-size:.6rem;color:var(--muted);background:transparent;border:1px solid var(--line-bright);
+    padding:5px 10px;cursor:pointer}
+  .toggle[aria-pressed="true"]{color:var(--bg);background:var(--amber);border-color:var(--amber);font-weight:600}
+
+  footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
+    font-size:.64rem;line-height:1.6;color:var(--muted);letter-spacing:.03em}
+  footer b{color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="sigil" aria-hidden="true"></div>
+      <div>
+        <h1>Weapons &amp; Attributes</h1>
+        <div class="sub">Build Planning · Solo PvE</div>
+      </div>
+    </div>
+    <div class="status">AGENT LVL 40<br>DATA: <b>LIVE</b></div>
+  </header>
+
+  <nav class="topnav" aria-label="Section">
+    <a href="index.html">Home</a>
+    <a href="division2-talent-lookup.html">Talents</a>
+    <a href="division2-weapons.html" class="active">Weapons</a>
+    <a href="division2-gear.html">Gear</a>
+    <a href="division2-attributes.html">Attributes</a>
+    <span class="soon">Builds</span>
+  </nav>
+
+  <div class="intro">
+    <h2>How to read this page</h2>
+    <p>Each weapon class lists its <b>best attribute priorities</b> for a solo crit/DPS build, and every <b>weapon talent</b> that can roll on that class — universal talents (work on anything) plus talents locked to that class or class group. Verdicts (<b>Keep</b> / <b>Situational</b> / <b>Skip</b>) match the Talent Lookup page. Attribute guidance assumes a weapon-damage build; skill and tank builds prioritise differently — see the Builds page once it's live.</p>
+  </div>
+
+  <div class="jump" id="jump"></div>
+  <div id="classes"></div>
+
+  <footer>
+    <b>Read me:</b> attribute priority guidance is general build wisdom, not patch-exact numbers — confirm specific
+    god-roll targets against a live source before recalibrating gear. Talent data mirrors the Talent Lookup page
+    (39 rollable weapon talents from The Division Wiki); named/exotic-locked talents are excluded. "Universal"
+    talents work on any weapon but are surfaced per class because how well they perform depends on that class's
+    fire rate, mag size and range band.
+  </footer>
+</div>
+
+<script>
+const CLASS_DATA = [
+  {
+    "id": "AR",
+    "name": "Assault Rifle",
+    "tag": "Mid-range · sustained automatic",
+    "attrs": [
+      {
+        "name": "Critical Hit Chance",
+        "note": "Push toward the 60% soft cap before anything else."
+      },
+      {
+        "name": "Critical Hit Damage",
+        "note": "Scales every crit once chance is in place."
+      },
+      {
+        "name": "Weapon Handling or Headshot Damage",
+        "note": "Handling for control-hungry AR builds; Headshot Damage instead if you’re running Rifleman-style headshot stacking."
+      }
+    ],
+    "talents": [
+      {
+        "n": "Measured",
+        "v": "keep",
+        "d": "AR / SMG / LMG. Top half of the mag = higher RPM; bottom half = +30% total weapon damage.",
+        "w": "Strong sustained DPS, excellent on LMGs. Top-tier.",
+        "scope": "class"
+      },
+      {
+        "n": "Overflowing",
+        "v": "keep",
+        "d": "Assault Rifles. Every 3 reloads-from-empty doubles your base magazine size.",
+        "w": "Huge AR mag pairs beautifully with Optimist. AR DPS favourite.",
+        "scope": "class"
+      },
+      {
+        "n": "Optimist",
+        "v": "keep",
+        "d": "Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.",
+        "w": "Core DPS talent. Best on high-capacity LMGs, ARs and rifles.",
+        "scope": "universal"
+      },
+      {
+        "n": "Killer",
+        "v": "keep",
+        "d": "Any weapon. Killing with a critical hit grants +40% critical hit damage for 10s.",
+        "w": "Pure crit-DPS gain. Pairs with any high-CHC build — the Striker/St. Elmo's staple.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ranger",
+        "v": "keep",
+        "d": "Any weapon. +2% weapon damage for every 5m of distance to the target.",
+        "w": "Strong AR / rifle DPS for ranged solo play. Easy uptime at distance.",
+        "scope": "universal"
+      },
+      {
+        "n": "Breadbasket",
+        "v": "keep",
+        "d": "Any weapon. Body shots stack bonus headshot damage onto your next headshot (up to 3 stacks).",
+        "w": "Big for headshot builds — especially on full-auto where heads are hard to land. Off-build for pure crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Strained",
+        "v": "keep",
+        "d": "Any weapon. +10% critical hit damage for every 0.5s of continuous fire, stacks up to 5.",
+        "w": "Strong sustained crit-damage on automatics. Wants high crit chance to pay off.",
+        "scope": "universal"
+      },
+      {
+        "n": "Fast Hands",
+        "v": "keep",
+        "d": "Any weapon. Critical hits stack a +4% reload-speed bonus (max 40%).",
+        "w": "Utility that keeps LMGs/ARs firing. Pairs naturally with Killer/crit builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "In Sync",
+        "v": "sit",
+        "d": "Any weapon. Hitting an enemy grants +15% skill damage; using a skill (or hitting with one) grants +15% weapon damage.",
+        "w": "Excellent on hybrid / skill-DPS builds. Dead weight on a pure red build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Flatline",
+        "v": "sit",
+        "d": "Any weapon. +15% weapon damage to pulsed enemies; after 3 kills, applies pulse to the next enemy you hit.",
+        "w": "Pulse-status synergy (pairs with Spotter / skill builds). Off-build for crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Vindictive",
+        "v": "sit",
+        "d": "Any weapon. Killing a status-afflicted enemy grants you and allies in 15m +15% crit chance & crit damage for 20s.",
+        "w": "Excellent in groups or status builds. Solo it still buffs you, but needs a status source.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sadist",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to bleeding enemies; applies bleed after 4 kills.",
+        "w": "Status-build synergy. Off a crit build it's filler.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ignited",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to burning enemies; applies burn after 4 kills.",
+        "w": "Good with fire/skill (incendiary) builds. Otherwise skip.",
+        "scope": "universal"
+      },
+      {
+        "n": "Eyeless",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to blinded enemies; applies blind after 4 kills.",
+        "w": "Niche — needs a blind source or the self-apply to matter.",
+        "scope": "universal"
+      },
+      {
+        "n": "Spike",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +20% skill damage for 15s.",
+        "w": "Skill-build only. Dead on a weapon-damage build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Perpetuation",
+        "v": "sit",
+        "d": "Any weapon. Headshots boost the damage & duration of your next status effect (+50%).",
+        "w": "Niche status / skill sustain.",
+        "scope": "universal"
+      },
+      {
+        "n": "Reformation",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +30% skill repair for 15s.",
+        "w": "Healer / support skill builds only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Preservation",
+        "v": "sit",
+        "d": "Any weapon. Kills repair 10% armour over 5s; headshot kills repair an extra 10%.",
+        "w": "Handy survivability while you're gearing solo — usually dropped at full endgame DPS.",
+        "scope": "universal"
+      },
+      {
+        "n": "Future Perfect",
+        "v": "sit",
+        "d": "Any weapon. Weapon kills grant +1 skill tier for 15s (stacks to 3); kills at tier 6 grant Overcharge.",
+        "w": "Strong on skill-tier builds — irrelevant to weapon-damage builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sledgehammer",
+        "v": "sit",
+        "d": "Any weapon. Grenade damage marks targets; marked enemies take +30% armour damage and move slower.",
+        "w": "Niche armour-shred utility. Not a general DPS pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Steady Handed",
+        "v": "sit",
+        "d": "Any weapon. Hits stack +1% accuracy & stability; at 100 stacks consumes them to refill the mag.",
+        "w": "Light utility, mostly for hard-to-control weapons. Not a damage pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Close & Personal",
+        "v": "sit",
+        "d": "All weapons. Killing a target within 7m grants +30% weapon damage for 10s.",
+        "w": "Risky at high difficulty; aggressive close-range only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Near Sighted",
+        "v": "skip",
+        "d": "Assault Rifles. +80% stability at the cost of -35% optimal range.",
+        "w": "Pure handling trade — no damage. Skip for DPS.",
+        "scope": "class"
+      },
+      {
+        "n": "On Empty",
+        "v": "skip",
+        "d": "Assault Rifles. Reloading from empty grants +30% weapon handling for 10s.",
+        "w": "Marginal quality-of-life. Not worth a slot.",
+        "scope": "class"
+      }
+    ]
+  },
+  {
+    "id": "SMG",
+    "name": "SMG",
+    "tag": "Close range · high rate of fire",
+    "attrs": [
+      {
+        "name": "Critical Hit Chance",
+        "note": "Fast RPM means crit procs (Killer, Strained) land constantly."
+      },
+      {
+        "name": "Critical Hit Damage",
+        "note": "Pairs with the chance above for burst close-range damage."
+      },
+      {
+        "name": "Weapon Handling",
+        "note": "Faster ADS and recoil recovery matter more up close than at range."
+      }
+    ],
+    "talents": [
+      {
+        "n": "Measured",
+        "v": "keep",
+        "d": "AR / SMG / LMG. Top half of the mag = higher RPM; bottom half = +30% total weapon damage.",
+        "w": "Strong sustained DPS, excellent on LMGs. Top-tier.",
+        "scope": "class"
+      },
+      {
+        "n": "Optimist",
+        "v": "keep",
+        "d": "Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.",
+        "w": "Core DPS talent. Best on high-capacity LMGs, ARs and rifles.",
+        "scope": "universal"
+      },
+      {
+        "n": "Killer",
+        "v": "keep",
+        "d": "Any weapon. Killing with a critical hit grants +40% critical hit damage for 10s.",
+        "w": "Pure crit-DPS gain. Pairs with any high-CHC build — the Striker/St. Elmo's staple.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ranger",
+        "v": "keep",
+        "d": "Any weapon. +2% weapon damage for every 5m of distance to the target.",
+        "w": "Strong AR / rifle DPS for ranged solo play. Easy uptime at distance.",
+        "scope": "universal"
+      },
+      {
+        "n": "Breadbasket",
+        "v": "keep",
+        "d": "Any weapon. Body shots stack bonus headshot damage onto your next headshot (up to 3 stacks).",
+        "w": "Big for headshot builds — especially on full-auto where heads are hard to land. Off-build for pure crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Strained",
+        "v": "keep",
+        "d": "Any weapon. +10% critical hit damage for every 0.5s of continuous fire, stacks up to 5.",
+        "w": "Strong sustained crit-damage on automatics. Wants high crit chance to pay off.",
+        "scope": "universal"
+      },
+      {
+        "n": "Fast Hands",
+        "v": "keep",
+        "d": "Any weapon. Critical hits stack a +4% reload-speed bonus (max 40%).",
+        "w": "Utility that keeps LMGs/ARs firing. Pairs naturally with Killer/crit builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Outsider",
+        "v": "sit",
+        "d": "SMGs. After a kill, gain +100% optimal range and accuracy for 10s.",
+        "w": "Lets SMGs reach further post-kill. Utility, not raw damage.",
+        "scope": "class"
+      },
+      {
+        "n": "Unwavering",
+        "v": "sit",
+        "d": "SMGs. Swapping to this weapon grants +300% handling for 5s; kills refresh it.",
+        "w": "Swap-build handling crutch. Very niche.",
+        "scope": "class"
+      },
+      {
+        "n": "In Sync",
+        "v": "sit",
+        "d": "Any weapon. Hitting an enemy grants +15% skill damage; using a skill (or hitting with one) grants +15% weapon damage.",
+        "w": "Excellent on hybrid / skill-DPS builds. Dead weight on a pure red build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Flatline",
+        "v": "sit",
+        "d": "Any weapon. +15% weapon damage to pulsed enemies; after 3 kills, applies pulse to the next enemy you hit.",
+        "w": "Pulse-status synergy (pairs with Spotter / skill builds). Off-build for crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Vindictive",
+        "v": "sit",
+        "d": "Any weapon. Killing a status-afflicted enemy grants you and allies in 15m +15% crit chance & crit damage for 20s.",
+        "w": "Excellent in groups or status builds. Solo it still buffs you, but needs a status source.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sadist",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to bleeding enemies; applies bleed after 4 kills.",
+        "w": "Status-build synergy. Off a crit build it's filler.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ignited",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to burning enemies; applies burn after 4 kills.",
+        "w": "Good with fire/skill (incendiary) builds. Otherwise skip.",
+        "scope": "universal"
+      },
+      {
+        "n": "Eyeless",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to blinded enemies; applies blind after 4 kills.",
+        "w": "Niche — needs a blind source or the self-apply to matter.",
+        "scope": "universal"
+      },
+      {
+        "n": "Spike",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +20% skill damage for 15s.",
+        "w": "Skill-build only. Dead on a weapon-damage build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Perpetuation",
+        "v": "sit",
+        "d": "Any weapon. Headshots boost the damage & duration of your next status effect (+50%).",
+        "w": "Niche status / skill sustain.",
+        "scope": "universal"
+      },
+      {
+        "n": "Reformation",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +30% skill repair for 15s.",
+        "w": "Healer / support skill builds only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Preservation",
+        "v": "sit",
+        "d": "Any weapon. Kills repair 10% armour over 5s; headshot kills repair an extra 10%.",
+        "w": "Handy survivability while you're gearing solo — usually dropped at full endgame DPS.",
+        "scope": "universal"
+      },
+      {
+        "n": "Future Perfect",
+        "v": "sit",
+        "d": "Any weapon. Weapon kills grant +1 skill tier for 15s (stacks to 3); kills at tier 6 grant Overcharge.",
+        "w": "Strong on skill-tier builds — irrelevant to weapon-damage builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sledgehammer",
+        "v": "sit",
+        "d": "Any weapon. Grenade damage marks targets; marked enemies take +30% armour damage and move slower.",
+        "w": "Niche armour-shred utility. Not a general DPS pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Steady Handed",
+        "v": "sit",
+        "d": "Any weapon. Hits stack +1% accuracy & stability; at 100 stacks consumes them to refill the mag.",
+        "w": "Light utility, mostly for hard-to-control weapons. Not a damage pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Close & Personal",
+        "v": "sit",
+        "d": "All weapons. Killing a target within 7m grants +30% weapon damage for 10s.",
+        "w": "Risky at high difficulty; aggressive close-range only.",
+        "scope": "universal"
+      }
+    ]
+  },
+  {
+    "id": "LMG",
+    "name": "LMG",
+    "tag": "Sustained fire · huge magazine",
+    "attrs": [
+      {
+        "name": "Critical Hit Chance",
+        "note": "Large mags mean more shots, more crit procs over a fight."
+      },
+      {
+        "name": "Critical Hit Damage",
+        "note": "Stacks with Strained / Killer for sustained burst."
+      },
+      {
+        "name": "Weapon Damage",
+        "note": "A flat damage roll matters more here than on twitchier weapons — you’re committed to long engagements."
+      }
+    ],
+    "talents": [
+      {
+        "n": "Measured",
+        "v": "keep",
+        "d": "AR / SMG / LMG. Top half of the mag = higher RPM; bottom half = +30% total weapon damage.",
+        "w": "Strong sustained DPS, excellent on LMGs. Top-tier.",
+        "scope": "class"
+      },
+      {
+        "n": "Frenzy",
+        "v": "keep",
+        "d": "LMGs. Per 10 rounds of mag capacity, gain +3% RPM and +3% weapon damage for 5s on reload-from-empty.",
+        "w": "High burst on big-mag LMGs.",
+        "scope": "class"
+      },
+      {
+        "n": "Unhinged",
+        "v": "keep",
+        "d": "LMGs. +18% weapon damage at the cost of -25% stability and -25% accuracy.",
+        "w": "Top raw damage if you offset the downside with stability mods/attributes.",
+        "scope": "class"
+      },
+      {
+        "n": "Optimist",
+        "v": "keep",
+        "d": "Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.",
+        "w": "Core DPS talent. Best on high-capacity LMGs, ARs and rifles.",
+        "scope": "universal"
+      },
+      {
+        "n": "Killer",
+        "v": "keep",
+        "d": "Any weapon. Killing with a critical hit grants +40% critical hit damage for 10s.",
+        "w": "Pure crit-DPS gain. Pairs with any high-CHC build — the Striker/St. Elmo's staple.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ranger",
+        "v": "keep",
+        "d": "Any weapon. +2% weapon damage for every 5m of distance to the target.",
+        "w": "Strong AR / rifle DPS for ranged solo play. Easy uptime at distance.",
+        "scope": "universal"
+      },
+      {
+        "n": "Breadbasket",
+        "v": "keep",
+        "d": "Any weapon. Body shots stack bonus headshot damage onto your next headshot (up to 3 stacks).",
+        "w": "Big for headshot builds — especially on full-auto where heads are hard to land. Off-build for pure crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Strained",
+        "v": "keep",
+        "d": "Any weapon. +10% critical hit damage for every 0.5s of continuous fire, stacks up to 5.",
+        "w": "Strong sustained crit-damage on automatics. Wants high crit chance to pay off.",
+        "scope": "universal"
+      },
+      {
+        "n": "Fast Hands",
+        "v": "keep",
+        "d": "Any weapon. Critical hits stack a +4% reload-speed bonus (max 40%).",
+        "w": "Utility that keeps LMGs/ARs firing. Pairs naturally with Killer/crit builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Overwhelm",
+        "v": "sit",
+        "d": "LMGs. Suppressing a not-yet-suppressed enemy grants +10% weapon damage for 12s (up to 4 stacks).",
+        "w": "Rewards LMG suppression playstyle. Situational versus Optimist/Measured.",
+        "scope": "class"
+      },
+      {
+        "n": "In Sync",
+        "v": "sit",
+        "d": "Any weapon. Hitting an enemy grants +15% skill damage; using a skill (or hitting with one) grants +15% weapon damage.",
+        "w": "Excellent on hybrid / skill-DPS builds. Dead weight on a pure red build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Flatline",
+        "v": "sit",
+        "d": "Any weapon. +15% weapon damage to pulsed enemies; after 3 kills, applies pulse to the next enemy you hit.",
+        "w": "Pulse-status synergy (pairs with Spotter / skill builds). Off-build for crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Vindictive",
+        "v": "sit",
+        "d": "Any weapon. Killing a status-afflicted enemy grants you and allies in 15m +15% crit chance & crit damage for 20s.",
+        "w": "Excellent in groups or status builds. Solo it still buffs you, but needs a status source.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sadist",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to bleeding enemies; applies bleed after 4 kills.",
+        "w": "Status-build synergy. Off a crit build it's filler.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ignited",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to burning enemies; applies burn after 4 kills.",
+        "w": "Good with fire/skill (incendiary) builds. Otherwise skip.",
+        "scope": "universal"
+      },
+      {
+        "n": "Eyeless",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to blinded enemies; applies blind after 4 kills.",
+        "w": "Niche — needs a blind source or the self-apply to matter.",
+        "scope": "universal"
+      },
+      {
+        "n": "Spike",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +20% skill damage for 15s.",
+        "w": "Skill-build only. Dead on a weapon-damage build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Perpetuation",
+        "v": "sit",
+        "d": "Any weapon. Headshots boost the damage & duration of your next status effect (+50%).",
+        "w": "Niche status / skill sustain.",
+        "scope": "universal"
+      },
+      {
+        "n": "Reformation",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +30% skill repair for 15s.",
+        "w": "Healer / support skill builds only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Preservation",
+        "v": "sit",
+        "d": "Any weapon. Kills repair 10% armour over 5s; headshot kills repair an extra 10%.",
+        "w": "Handy survivability while you're gearing solo — usually dropped at full endgame DPS.",
+        "scope": "universal"
+      },
+      {
+        "n": "Future Perfect",
+        "v": "sit",
+        "d": "Any weapon. Weapon kills grant +1 skill tier for 15s (stacks to 3); kills at tier 6 grant Overcharge.",
+        "w": "Strong on skill-tier builds — irrelevant to weapon-damage builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sledgehammer",
+        "v": "sit",
+        "d": "Any weapon. Grenade damage marks targets; marked enemies take +30% armour damage and move slower.",
+        "w": "Niche armour-shred utility. Not a general DPS pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Steady Handed",
+        "v": "sit",
+        "d": "Any weapon. Hits stack +1% accuracy & stability; at 100 stacks consumes them to refill the mag.",
+        "w": "Light utility, mostly for hard-to-control weapons. Not a damage pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Close & Personal",
+        "v": "sit",
+        "d": "All weapons. Killing a target within 7m grants +30% weapon damage for 10s.",
+        "w": "Risky at high difficulty; aggressive close-range only.",
+        "scope": "universal"
+      }
+    ]
+  },
+  {
+    "id": "Rifle",
+    "name": "Rifle",
+    "tag": "Mid/long range · semi-auto, headshot-friendly",
+    "attrs": [
+      {
+        "name": "Headshot Damage",
+        "note": "The defining stat for Rifleman / Determined headshot loops."
+      },
+      {
+        "name": "Critical Hit Chance",
+        "note": "Still worth chasing toward 60% — crits and headshots compound."
+      },
+      {
+        "name": "Critical Hit Damage",
+        "note": "Third priority once the first two are in place."
+      }
+    ],
+    "talents": [
+      {
+        "n": "Rifleman",
+        "v": "keep",
+        "d": "Rifles. Each headshot stacks +10% weapon damage for 5s (up to 5); headshots refresh it.",
+        "w": "+50% at full stacks for headshot play. The rifle headshot-build staple.",
+        "scope": "class"
+      },
+      {
+        "n": "Determined",
+        "v": "keep",
+        "d": "Rifles / MMR / Pistols. After a headshot kill, your next shot on any enemy is a guaranteed headshot.",
+        "w": "Excellent for headshot/rifle builds — turns body shots into heads to keep the chain going.",
+        "scope": "class"
+      },
+      {
+        "n": "Optimist",
+        "v": "keep",
+        "d": "Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.",
+        "w": "Core DPS talent. Best on high-capacity LMGs, ARs and rifles.",
+        "scope": "universal"
+      },
+      {
+        "n": "Killer",
+        "v": "keep",
+        "d": "Any weapon. Killing with a critical hit grants +40% critical hit damage for 10s.",
+        "w": "Pure crit-DPS gain. Pairs with any high-CHC build — the Striker/St. Elmo's staple.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ranger",
+        "v": "keep",
+        "d": "Any weapon. +2% weapon damage for every 5m of distance to the target.",
+        "w": "Strong AR / rifle DPS for ranged solo play. Easy uptime at distance.",
+        "scope": "universal"
+      },
+      {
+        "n": "Breadbasket",
+        "v": "keep",
+        "d": "Any weapon. Body shots stack bonus headshot damage onto your next headshot (up to 3 stacks).",
+        "w": "Big for headshot builds — especially on full-auto where heads are hard to land. Off-build for pure crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Strained",
+        "v": "keep",
+        "d": "Any weapon. +10% critical hit damage for every 0.5s of continuous fire, stacks up to 5.",
+        "w": "Strong sustained crit-damage on automatics. Wants high crit chance to pay off.",
+        "scope": "universal"
+      },
+      {
+        "n": "Fast Hands",
+        "v": "keep",
+        "d": "Any weapon. Critical hits stack a +4% reload-speed bonus (max 40%).",
+        "w": "Utility that keeps LMGs/ARs firing. Pairs naturally with Killer/crit builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Boomerang",
+        "v": "sit",
+        "d": "Rifles. Crit hits have a 50% chance to return the bullet to the mag; the returned shot hits +40% harder.",
+        "w": "Niche ammo-economy/crit scaling — situational versus simpler picks.",
+        "scope": "class"
+      },
+      {
+        "n": "Lucky Shot",
+        "v": "sit",
+        "d": "Rifles / MMR / Pistols. +20% magazine capacity; missed shots from cover return to the mag.",
+        "w": "Ammo-economy utility, not a damage gain.",
+        "scope": "class"
+      },
+      {
+        "n": "In Sync",
+        "v": "sit",
+        "d": "Any weapon. Hitting an enemy grants +15% skill damage; using a skill (or hitting with one) grants +15% weapon damage.",
+        "w": "Excellent on hybrid / skill-DPS builds. Dead weight on a pure red build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Flatline",
+        "v": "sit",
+        "d": "Any weapon. +15% weapon damage to pulsed enemies; after 3 kills, applies pulse to the next enemy you hit.",
+        "w": "Pulse-status synergy (pairs with Spotter / skill builds). Off-build for crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Vindictive",
+        "v": "sit",
+        "d": "Any weapon. Killing a status-afflicted enemy grants you and allies in 15m +15% crit chance & crit damage for 20s.",
+        "w": "Excellent in groups or status builds. Solo it still buffs you, but needs a status source.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sadist",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to bleeding enemies; applies bleed after 4 kills.",
+        "w": "Status-build synergy. Off a crit build it's filler.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ignited",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to burning enemies; applies burn after 4 kills.",
+        "w": "Good with fire/skill (incendiary) builds. Otherwise skip.",
+        "scope": "universal"
+      },
+      {
+        "n": "Eyeless",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to blinded enemies; applies blind after 4 kills.",
+        "w": "Niche — needs a blind source or the self-apply to matter.",
+        "scope": "universal"
+      },
+      {
+        "n": "Spike",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +20% skill damage for 15s.",
+        "w": "Skill-build only. Dead on a weapon-damage build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Perpetuation",
+        "v": "sit",
+        "d": "Any weapon. Headshots boost the damage & duration of your next status effect (+50%).",
+        "w": "Niche status / skill sustain.",
+        "scope": "universal"
+      },
+      {
+        "n": "Reformation",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +30% skill repair for 15s.",
+        "w": "Healer / support skill builds only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Preservation",
+        "v": "sit",
+        "d": "Any weapon. Kills repair 10% armour over 5s; headshot kills repair an extra 10%.",
+        "w": "Handy survivability while you're gearing solo — usually dropped at full endgame DPS.",
+        "scope": "universal"
+      },
+      {
+        "n": "Future Perfect",
+        "v": "sit",
+        "d": "Any weapon. Weapon kills grant +1 skill tier for 15s (stacks to 3); kills at tier 6 grant Overcharge.",
+        "w": "Strong on skill-tier builds — irrelevant to weapon-damage builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sledgehammer",
+        "v": "sit",
+        "d": "Any weapon. Grenade damage marks targets; marked enemies take +30% armour damage and move slower.",
+        "w": "Niche armour-shred utility. Not a general DPS pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Steady Handed",
+        "v": "sit",
+        "d": "Any weapon. Hits stack +1% accuracy & stability; at 100 stacks consumes them to refill the mag.",
+        "w": "Light utility, mostly for hard-to-control weapons. Not a damage pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Close & Personal",
+        "v": "sit",
+        "d": "All weapons. Killing a target within 7m grants +30% weapon damage for 10s.",
+        "w": "Risky at high difficulty; aggressive close-range only.",
+        "scope": "universal"
+      }
+    ]
+  },
+  {
+    "id": "MMR",
+    "name": "Marksman Rifle",
+    "tag": "Long range · single precise shots",
+    "attrs": [
+      {
+        "name": "Headshot Damage",
+        "note": "One-shot or near one-shot potential on weak points — the main reason to bring an MMR."
+      },
+      {
+        "name": "Critical Hit Chance",
+        "note": "Each shot counts, so push the chance you actually land a crit."
+      },
+      {
+        "name": "Optimal Range / Accuracy",
+        "note": "Keeps damage falloff from eating into your one big hit."
+      }
+    ],
+    "talents": [
+      {
+        "n": "Determined",
+        "v": "keep",
+        "d": "Rifles / MMR / Pistols. After a headshot kill, your next shot on any enemy is a guaranteed headshot.",
+        "w": "Excellent for headshot/rifle builds — turns body shots into heads to keep the chain going.",
+        "scope": "class"
+      },
+      {
+        "n": "Optimist",
+        "v": "keep",
+        "d": "Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.",
+        "w": "Core DPS talent. Best on high-capacity LMGs, ARs and rifles.",
+        "scope": "universal"
+      },
+      {
+        "n": "Killer",
+        "v": "keep",
+        "d": "Any weapon. Killing with a critical hit grants +40% critical hit damage for 10s.",
+        "w": "Pure crit-DPS gain. Pairs with any high-CHC build — the Striker/St. Elmo's staple.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ranger",
+        "v": "keep",
+        "d": "Any weapon. +2% weapon damage for every 5m of distance to the target.",
+        "w": "Strong AR / rifle DPS for ranged solo play. Easy uptime at distance.",
+        "scope": "universal"
+      },
+      {
+        "n": "Breadbasket",
+        "v": "keep",
+        "d": "Any weapon. Body shots stack bonus headshot damage onto your next headshot (up to 3 stacks).",
+        "w": "Big for headshot builds — especially on full-auto where heads are hard to land. Off-build for pure crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Strained",
+        "v": "keep",
+        "d": "Any weapon. +10% critical hit damage for every 0.5s of continuous fire, stacks up to 5.",
+        "w": "Strong sustained crit-damage on automatics. Wants high crit chance to pay off.",
+        "scope": "universal"
+      },
+      {
+        "n": "Fast Hands",
+        "v": "keep",
+        "d": "Any weapon. Critical hits stack a +4% reload-speed bonus (max 40%).",
+        "w": "Utility that keeps LMGs/ARs firing. Pairs naturally with Killer/crit builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Lucky Shot",
+        "v": "sit",
+        "d": "Rifles / MMR / Pistols. +20% magazine capacity; missed shots from cover return to the mag.",
+        "w": "Ammo-economy utility, not a damage gain.",
+        "scope": "class"
+      },
+      {
+        "n": "First Blood",
+        "v": "sit",
+        "d": "Marksman Rifles. First scoped shot out of combat counts as a headshot (needs 8x+ scope).",
+        "w": "PvP-leaning opener. Inconsistent and low value for PvE.",
+        "scope": "class"
+      },
+      {
+        "n": "In Sync",
+        "v": "sit",
+        "d": "Any weapon. Hitting an enemy grants +15% skill damage; using a skill (or hitting with one) grants +15% weapon damage.",
+        "w": "Excellent on hybrid / skill-DPS builds. Dead weight on a pure red build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Flatline",
+        "v": "sit",
+        "d": "Any weapon. +15% weapon damage to pulsed enemies; after 3 kills, applies pulse to the next enemy you hit.",
+        "w": "Pulse-status synergy (pairs with Spotter / skill builds). Off-build for crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Vindictive",
+        "v": "sit",
+        "d": "Any weapon. Killing a status-afflicted enemy grants you and allies in 15m +15% crit chance & crit damage for 20s.",
+        "w": "Excellent in groups or status builds. Solo it still buffs you, but needs a status source.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sadist",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to bleeding enemies; applies bleed after 4 kills.",
+        "w": "Status-build synergy. Off a crit build it's filler.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ignited",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to burning enemies; applies burn after 4 kills.",
+        "w": "Good with fire/skill (incendiary) builds. Otherwise skip.",
+        "scope": "universal"
+      },
+      {
+        "n": "Eyeless",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to blinded enemies; applies blind after 4 kills.",
+        "w": "Niche — needs a blind source or the self-apply to matter.",
+        "scope": "universal"
+      },
+      {
+        "n": "Spike",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +20% skill damage for 15s.",
+        "w": "Skill-build only. Dead on a weapon-damage build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Perpetuation",
+        "v": "sit",
+        "d": "Any weapon. Headshots boost the damage & duration of your next status effect (+50%).",
+        "w": "Niche status / skill sustain.",
+        "scope": "universal"
+      },
+      {
+        "n": "Reformation",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +30% skill repair for 15s.",
+        "w": "Healer / support skill builds only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Preservation",
+        "v": "sit",
+        "d": "Any weapon. Kills repair 10% armour over 5s; headshot kills repair an extra 10%.",
+        "w": "Handy survivability while you're gearing solo — usually dropped at full endgame DPS.",
+        "scope": "universal"
+      },
+      {
+        "n": "Future Perfect",
+        "v": "sit",
+        "d": "Any weapon. Weapon kills grant +1 skill tier for 15s (stacks to 3); kills at tier 6 grant Overcharge.",
+        "w": "Strong on skill-tier builds — irrelevant to weapon-damage builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sledgehammer",
+        "v": "sit",
+        "d": "Any weapon. Grenade damage marks targets; marked enemies take +30% armour damage and move slower.",
+        "w": "Niche armour-shred utility. Not a general DPS pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Steady Handed",
+        "v": "sit",
+        "d": "Any weapon. Hits stack +1% accuracy & stability; at 100 stacks consumes them to refill the mag.",
+        "w": "Light utility, mostly for hard-to-control weapons. Not a damage pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Close & Personal",
+        "v": "sit",
+        "d": "All weapons. Killing a target within 7m grants +30% weapon damage for 10s.",
+        "w": "Risky at high difficulty; aggressive close-range only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Naked",
+        "v": "skip",
+        "d": "Marksman Rifles. While your armour is depleted, gain +50% headshot damage for 5s.",
+        "w": "Needs you to play at zero armour — too risky for general PvE.",
+        "scope": "class"
+      }
+    ]
+  },
+  {
+    "id": "Pistol",
+    "name": "Pistol",
+    "tag": "Sidearm · swap-DPS or standalone",
+    "attrs": [
+      {
+        "name": "Critical Hit Chance",
+        "note": "For Determined-style headshot chaining or a swap-DPS loop with Finisher."
+      },
+      {
+        "name": "Critical Hit Damage",
+        "note": "Pairs with chance for burst windows after a weapon swap."
+      },
+      {
+        "name": "Weapon Handling",
+        "note": "Faster swap speed if you’re using the pistol as a finisher rather than a main."
+      }
+    ],
+    "talents": [
+      {
+        "n": "Determined",
+        "v": "keep",
+        "d": "Rifles / MMR / Pistols. After a headshot kill, your next shot on any enemy is a guaranteed headshot.",
+        "w": "Excellent for headshot/rifle builds — turns body shots into heads to keep the chain going.",
+        "scope": "class"
+      },
+      {
+        "n": "Optimist",
+        "v": "keep",
+        "d": "Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.",
+        "w": "Core DPS talent. Best on high-capacity LMGs, ARs and rifles.",
+        "scope": "universal"
+      },
+      {
+        "n": "Killer",
+        "v": "keep",
+        "d": "Any weapon. Killing with a critical hit grants +40% critical hit damage for 10s.",
+        "w": "Pure crit-DPS gain. Pairs with any high-CHC build — the Striker/St. Elmo's staple.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ranger",
+        "v": "keep",
+        "d": "Any weapon. +2% weapon damage for every 5m of distance to the target.",
+        "w": "Strong AR / rifle DPS for ranged solo play. Easy uptime at distance.",
+        "scope": "universal"
+      },
+      {
+        "n": "Breadbasket",
+        "v": "keep",
+        "d": "Any weapon. Body shots stack bonus headshot damage onto your next headshot (up to 3 stacks).",
+        "w": "Big for headshot builds — especially on full-auto where heads are hard to land. Off-build for pure crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Strained",
+        "v": "keep",
+        "d": "Any weapon. +10% critical hit damage for every 0.5s of continuous fire, stacks up to 5.",
+        "w": "Strong sustained crit-damage on automatics. Wants high crit chance to pay off.",
+        "scope": "universal"
+      },
+      {
+        "n": "Fast Hands",
+        "v": "keep",
+        "d": "Any weapon. Critical hits stack a +4% reload-speed bonus (max 40%).",
+        "w": "Utility that keeps LMGs/ARs firing. Pairs naturally with Killer/crit builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Lucky Shot",
+        "v": "sit",
+        "d": "Rifles / MMR / Pistols. +20% magazine capacity; missed shots from cover return to the mag.",
+        "w": "Ammo-economy utility, not a damage gain.",
+        "scope": "class"
+      },
+      {
+        "n": "Finisher",
+        "v": "sit",
+        "d": "Pistols. Swapping away within 10s of a kill grants +30% crit chance & crit damage for 15s.",
+        "w": "Good for sidearm swap-DPS rotations; pointless if you don't swap.",
+        "scope": "class"
+      },
+      {
+        "n": "Salvage",
+        "v": "sit",
+        "d": "Pistols. Kills have a 70% chance to refill the magazine.",
+        "w": "Light sustain for a sidearm. Niche.",
+        "scope": "class"
+      },
+      {
+        "n": "In Sync",
+        "v": "sit",
+        "d": "Any weapon. Hitting an enemy grants +15% skill damage; using a skill (or hitting with one) grants +15% weapon damage.",
+        "w": "Excellent on hybrid / skill-DPS builds. Dead weight on a pure red build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Flatline",
+        "v": "sit",
+        "d": "Any weapon. +15% weapon damage to pulsed enemies; after 3 kills, applies pulse to the next enemy you hit.",
+        "w": "Pulse-status synergy (pairs with Spotter / skill builds). Off-build for crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Vindictive",
+        "v": "sit",
+        "d": "Any weapon. Killing a status-afflicted enemy grants you and allies in 15m +15% crit chance & crit damage for 20s.",
+        "w": "Excellent in groups or status builds. Solo it still buffs you, but needs a status source.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sadist",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to bleeding enemies; applies bleed after 4 kills.",
+        "w": "Status-build synergy. Off a crit build it's filler.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ignited",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to burning enemies; applies burn after 4 kills.",
+        "w": "Good with fire/skill (incendiary) builds. Otherwise skip.",
+        "scope": "universal"
+      },
+      {
+        "n": "Eyeless",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to blinded enemies; applies blind after 4 kills.",
+        "w": "Niche — needs a blind source or the self-apply to matter.",
+        "scope": "universal"
+      },
+      {
+        "n": "Spike",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +20% skill damage for 15s.",
+        "w": "Skill-build only. Dead on a weapon-damage build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Perpetuation",
+        "v": "sit",
+        "d": "Any weapon. Headshots boost the damage & duration of your next status effect (+50%).",
+        "w": "Niche status / skill sustain.",
+        "scope": "universal"
+      },
+      {
+        "n": "Reformation",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +30% skill repair for 15s.",
+        "w": "Healer / support skill builds only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Preservation",
+        "v": "sit",
+        "d": "Any weapon. Kills repair 10% armour over 5s; headshot kills repair an extra 10%.",
+        "w": "Handy survivability while you're gearing solo — usually dropped at full endgame DPS.",
+        "scope": "universal"
+      },
+      {
+        "n": "Future Perfect",
+        "v": "sit",
+        "d": "Any weapon. Weapon kills grant +1 skill tier for 15s (stacks to 3); kills at tier 6 grant Overcharge.",
+        "w": "Strong on skill-tier builds — irrelevant to weapon-damage builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sledgehammer",
+        "v": "sit",
+        "d": "Any weapon. Grenade damage marks targets; marked enemies take +30% armour damage and move slower.",
+        "w": "Niche armour-shred utility. Not a general DPS pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Steady Handed",
+        "v": "sit",
+        "d": "Any weapon. Hits stack +1% accuracy & stability; at 100 stacks consumes them to refill the mag.",
+        "w": "Light utility, mostly for hard-to-control weapons. Not a damage pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Close & Personal",
+        "v": "sit",
+        "d": "All weapons. Killing a target within 7m grants +30% weapon damage for 10s.",
+        "w": "Risky at high difficulty; aggressive close-range only.",
+        "scope": "universal"
+      }
+    ]
+  },
+  {
+    "id": "Shotgun",
+    "name": "Shotgun",
+    "tag": "Point-blank · pellet spread",
+    "attrs": [
+      {
+        "name": "Weapon Damage",
+        "note": "Pellet spread makes crit rolls inconsistent — flat damage is the more reliable investment."
+      },
+      {
+        "name": "Reload Speed",
+        "note": "Low mag size means you’re reloading constantly; Pumped Up and Pummel both reward it."
+      },
+      {
+        "name": "Optimal Range",
+        "note": "Stretches the very short effective range just enough to matter."
+      }
+    ],
+    "talents": [
+      {
+        "n": "Optimist",
+        "v": "keep",
+        "d": "Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.",
+        "w": "Core DPS talent. Best on high-capacity LMGs, ARs and rifles.",
+        "scope": "universal"
+      },
+      {
+        "n": "Killer",
+        "v": "keep",
+        "d": "Any weapon. Killing with a critical hit grants +40% critical hit damage for 10s.",
+        "w": "Pure crit-DPS gain. Pairs with any high-CHC build — the Striker/St. Elmo's staple.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ranger",
+        "v": "keep",
+        "d": "Any weapon. +2% weapon damage for every 5m of distance to the target.",
+        "w": "Strong AR / rifle DPS for ranged solo play. Easy uptime at distance.",
+        "scope": "universal"
+      },
+      {
+        "n": "Breadbasket",
+        "v": "keep",
+        "d": "Any weapon. Body shots stack bonus headshot damage onto your next headshot (up to 3 stacks).",
+        "w": "Big for headshot builds — especially on full-auto where heads are hard to land. Off-build for pure crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Strained",
+        "v": "keep",
+        "d": "Any weapon. +10% critical hit damage for every 0.5s of continuous fire, stacks up to 5.",
+        "w": "Strong sustained crit-damage on automatics. Wants high crit chance to pay off.",
+        "scope": "universal"
+      },
+      {
+        "n": "Fast Hands",
+        "v": "keep",
+        "d": "Any weapon. Critical hits stack a +4% reload-speed bonus (max 40%).",
+        "w": "Utility that keeps LMGs/ARs firing. Pairs naturally with Killer/crit builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Pummel",
+        "v": "sit",
+        "d": "Shotguns. Three consecutive kills refill the mag and grant +40% weapon damage for 10s.",
+        "w": "Shotgun-build payoff; needs the kill streak to fire.",
+        "scope": "class"
+      },
+      {
+        "n": "Pumped Up",
+        "v": "sit",
+        "d": "Shotguns. Each reload stacks +1% weapon damage for 10s (up to 25).",
+        "w": "Ramp-up shotgun talent. Slow to build, shotgun-only.",
+        "scope": "class"
+      },
+      {
+        "n": "In Sync",
+        "v": "sit",
+        "d": "Any weapon. Hitting an enemy grants +15% skill damage; using a skill (or hitting with one) grants +15% weapon damage.",
+        "w": "Excellent on hybrid / skill-DPS builds. Dead weight on a pure red build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Flatline",
+        "v": "sit",
+        "d": "Any weapon. +15% weapon damage to pulsed enemies; after 3 kills, applies pulse to the next enemy you hit.",
+        "w": "Pulse-status synergy (pairs with Spotter / skill builds). Off-build for crit.",
+        "scope": "universal"
+      },
+      {
+        "n": "Vindictive",
+        "v": "sit",
+        "d": "Any weapon. Killing a status-afflicted enemy grants you and allies in 15m +15% crit chance & crit damage for 20s.",
+        "w": "Excellent in groups or status builds. Solo it still buffs you, but needs a status source.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sadist",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to bleeding enemies; applies bleed after 4 kills.",
+        "w": "Status-build synergy. Off a crit build it's filler.",
+        "scope": "universal"
+      },
+      {
+        "n": "Ignited",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to burning enemies; applies burn after 4 kills.",
+        "w": "Good with fire/skill (incendiary) builds. Otherwise skip.",
+        "scope": "universal"
+      },
+      {
+        "n": "Eyeless",
+        "v": "sit",
+        "d": "Any weapon. +20% weapon damage to blinded enemies; applies blind after 4 kills.",
+        "w": "Niche — needs a blind source or the self-apply to matter.",
+        "scope": "universal"
+      },
+      {
+        "n": "Spike",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +20% skill damage for 15s.",
+        "w": "Skill-build only. Dead on a weapon-damage build.",
+        "scope": "universal"
+      },
+      {
+        "n": "Perpetuation",
+        "v": "sit",
+        "d": "Any weapon. Headshots boost the damage & duration of your next status effect (+50%).",
+        "w": "Niche status / skill sustain.",
+        "scope": "universal"
+      },
+      {
+        "n": "Reformation",
+        "v": "sit",
+        "d": "Any weapon. Headshots grant +30% skill repair for 15s.",
+        "w": "Healer / support skill builds only.",
+        "scope": "universal"
+      },
+      {
+        "n": "Preservation",
+        "v": "sit",
+        "d": "Any weapon. Kills repair 10% armour over 5s; headshot kills repair an extra 10%.",
+        "w": "Handy survivability while you're gearing solo — usually dropped at full endgame DPS.",
+        "scope": "universal"
+      },
+      {
+        "n": "Future Perfect",
+        "v": "sit",
+        "d": "Any weapon. Weapon kills grant +1 skill tier for 15s (stacks to 3); kills at tier 6 grant Overcharge.",
+        "w": "Strong on skill-tier builds — irrelevant to weapon-damage builds.",
+        "scope": "universal"
+      },
+      {
+        "n": "Sledgehammer",
+        "v": "sit",
+        "d": "Any weapon. Grenade damage marks targets; marked enemies take +30% armour damage and move slower.",
+        "w": "Niche armour-shred utility. Not a general DPS pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Steady Handed",
+        "v": "sit",
+        "d": "Any weapon. Hits stack +1% accuracy & stability; at 100 stacks consumes them to refill the mag.",
+        "w": "Light utility, mostly for hard-to-control weapons. Not a damage pick.",
+        "scope": "universal"
+      },
+      {
+        "n": "Close & Personal",
+        "v": "sit",
+        "d": "All weapons. Killing a target within 7m grants +30% weapon damage for 10s.",
+        "w": "Risky at high difficulty; aggressive close-range only.",
+        "scope": "universal"
+      }
+    ]
+  }
+];
+
+const VLABEL = {keep:'Keep', sit:'Situational', skip:'Skip'};
+const jump = document.getElementById('jump');
+const root = document.getElementById('classes');
+
+jump.innerHTML = CLASS_DATA.map(c=>`<a href="#cls-${c.id}">${c.name}</a>`).join('');
+
+root.innerHTML = CLASS_DATA.map(c=>`
+  <section class="class-section" id="cls-${c.id}">
+    <a class="totop" href="#jump"><svg viewBox="0 0 10 10" fill="none"><path d="M5 9V1M1.5 4.5L5 1l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to weapon list</a>
+    <div class="class-head">
+      <h2>${c.name}</h2>
+      <div class="tag">${c.tag}</div>
+    </div>
+    <div class="class-body">
+      <div class="attrs">
+        <h3>Attribute priority</h3>
+        ${c.attrs.map((a,i)=>`
+          <div class="attr-row">
+            <div class="attr-rank">${i+1}</div>
+            <div>
+              <div class="attr-name">${a.name}</div>
+              <div class="attr-note">${a.note}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div>
+        <div class="toggle-row" data-cls="${c.id}">
+          <button class="toggle" data-f="all" aria-pressed="true">All</button>
+          <button class="toggle" data-f="keep" aria-pressed="false">Keep</button>
+          <button class="toggle" data-f="sit" aria-pressed="false">Situational</button>
+        </div>
+        <div class="talent-grid" id="grid-${c.id}"></div>
+      </div>
+    </div>
+  </section>`).join('');
+
+function renderGrid(c, filter){
+  const grid = document.getElementById('grid-'+c.id);
+  const order = {keep:0, sit:1, skip:2};
+  const rows = c.talents.filter(t => filter==='all' ? t.v!=='skip' : t.v===filter);
+  rows.sort((a,b)=> order[a.v]-order[b.v] || a.n.localeCompare(b.n));
+  grid.innerHTML = rows.map(t=>`
+    <div class="tcard ${t.v}">
+      <div class="ttop">
+        <div>
+          <div class="tname">${t.n}</div>
+          <div class="tscope">${t.scope==='universal' ? 'Universal' : c.name}</div>
+        </div>
+        <div class="tverdict ${t.v}">${VLABEL[t.v]}</div>
+      </div>
+      <p class="tdesc">${t.d}</p>
+      <p class="twhy"><b>Verdict ›</b> ${t.w}</p>
+    </div>`).join('');
+}
+
+CLASS_DATA.forEach(c => renderGrid(c, 'all'));
+
+root.addEventListener('click', e=>{
+  const b = e.target.closest('.toggle'); if(!b) return;
+  const row = b.closest('.toggle-row');
+  const cid = row.dataset.cls;
+  const c = CLASS_DATA.find(x=>x.id===cid);
+  row.querySelectorAll('.toggle').forEach(t=>t.setAttribute('aria-pressed', t===b ? 'true':'false'));
+  renderGrid(c, b.dataset.f);
+});
+</script>

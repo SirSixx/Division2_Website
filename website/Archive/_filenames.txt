@@ -1,0 +1,70 @@
+# SHD Toolkit — logo filenames (save into the logos/ folder)
+# One word per set, .png. Missing files just show no watermark.
+
+## Gear Sets (27)
+Aces and Eights  .................  aces.png
+Aegis  ...........................  aegis.png
+Breaking Point  ..................  breaking.png
+Cavalier  ........................  cavalier.png
+Concentrated Company  ............  concentrated.png
+Core Strength  ...................  core.png
+Eclipse Protocol  ................  eclipse.png
+Foundry Bulwark  .................  foundry.png
+Future Initiative  ...............  future.png
+Hard Wired  ......................  hard.png
+Heartbreaker  ....................  heartbreaker.png
+Hotshot  .........................  hotshot.png
+Hunter's Fury  ...................  hunters.png
+Measured Assembly  ...............  measured.png
+Negotiator's Dilemma  ............  negotiators.png
+Ongoing Directive  ...............  ongoing.png
+Ortiz: Exuro  ....................  exuro.png
+Ortiz: Reficere  .................  reficere.png
+Refactor  ........................  refactor.png
+Rigger  ..........................  rigger.png
+Striker's Battlegear  ............  strikers.png
+System Corruption  ...............  system.png
+Tip of the Spear  ................  tip.png
+Tipping Scales  ..................  tipping.png
+True Patriot  ....................  true.png
+Umbra Initiative  ................  umbra.png
+Virtuoso  ........................  virtuoso.png
+
+## Brand Sets (37)
+5.11 Tactical  ...................  511.png
+Airaldi  .........................  airaldi.png
+Alps Summit  .....................  alps.png
+Badger Tuff  .....................  badger.png
+Belstone Armory  .................  belstone.png
+Brazos de Arcabuz  ...............  brazos.png
+Ceska Vyroba  ....................  ceska.png
+China Light  .....................  china.png
+Douglas & Harding  ...............  douglas.png
+Edelweiss GPz  ...................  edelweiss.png
+Electrique  ......................  electrique.png
+Empress International  ...........  empress.png
+Fenris Group  ....................  fenris.png
+Gila Guard  ......................  gila.png
+Golan Gear  ......................  golan.png
+Grupo Sombra  ....................  grupo.png
+Habsburg Guard  ..................  habsburg.png
+Hana-U  ..........................  hana.png
+Imminence Armaments  .............  imminence.png
+Legatus  .........................  legatus.png
+Lengmo  ..........................  lengmo.png
+Murakami Industries  .............  murakami.png
+Overlord Armaments  ..............  overlord.png
+Palisade Steelworks  .............  palisade.png
+Petrov Defense Group  ............  petrov.png
+Providence Defense  ..............  providence.png
+Richter & Kaiser  ................  richter.png
+Royal Works  .....................  royal.png
+Shiny Monkey Gear  ...............  shiny.png
+Sokolov  .........................  sokolov.png
+Unit Alloys  .....................  unit.png
+Urban Lookout  ...................  urban.png
+Uzina Getica  ....................  uzina.png
+Walker, Harris & Co  .............  walker.png
+Wyvern Wear  .....................  wyvern.png
+Yaahl Gear  ......................  yaahl.png
+Zwiadowka  .......................  zwiadowka.png
