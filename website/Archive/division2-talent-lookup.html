@@ -5,12 +5,49 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-<style>:root{
-  --keep:#54c06e; --keep-bg:rgba(84,192,110,.10);
-  --sit:#ffb340; --sit-bg:rgba(255,179,64,.10);
-  --skip:#e0524a; --skip-bg:rgba(224,82,74,.10);
-}
+<style>
+  :root{
+    --bg:#0b0d0f;
+    --panel:#14171b;
+    --panel-2:#191d22;
+    --line:#262c33;
+    --line-bright:#39424c;
+    --text:#e8e6e0;
+    --muted:#8a929b;
+    --amber:#ff8c1a;
+    --amber-dim:#b86413;
+    --keep:#54c06e;
+    --keep-bg:rgba(84,192,110,.10);
+    --sit:#ffb340;
+    --sit-bg:rgba(255,179,64,.10);
+    --skip:#e0524a;
+    --skip-bg:rgba(224,82,74,.10);
+    --display:"Oswald", "Arial Narrow", sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, "Courier New", monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);
+    -webkit-font-smoothing:antialiased}
+  body{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px);
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 18px 80px}
+
+  /* ---- header ---- */
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;
+    border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .sigil{width:38px;height:38px;flex:0 0 38px;position:relative;transform:rotate(45deg);
+    border:2px solid var(--amber);}
+  .sigil::after{content:"";position:absolute;inset:6px;border:2px solid var(--amber-dim)}
+  .sigil::before{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;
+    margin:-3px 0 0 -3px;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+  h1{font-family:var(--display);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    font-size:1.5rem;margin:0;line-height:1}
+  .sub{font-size:.66rem;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;margin-top:5px}
+  .status{font-size:.62rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;text-align:right}
+  .status b{color:var(--keep)}
 
   /* ---- sort rules ---- */
   .rules{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
@@ -79,6 +116,22 @@
 
   .empty{text-align:center;color:var(--muted);font-size:.8rem;padding:50px 0;letter-spacing:.1em}
   .empty b{color:var(--text)}
+
+  footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
+    font-size:.64rem;line-height:1.6;color:var(--muted);letter-spacing:.03em}
+  footer b{color:var(--muted)}
+
+  /* ---- shared top nav ---- */
+  nav.topnav{display:flex;gap:2px;margin:0 0 18px;border-bottom:1px solid var(--line);
+    flex-wrap:wrap}
+  nav.topnav a, nav.topnav span{font-family:var(--display);font-weight:500;letter-spacing:.16em;
+    text-transform:uppercase;font-size:.7rem;color:var(--muted);text-decoration:none;
+    padding:11px 16px;border-bottom:2px solid transparent;transition:.12s}
+  nav.topnav a:hover{color:var(--text)}
+  nav.topnav a.active{color:var(--amber);border-bottom-color:var(--amber)}
+  nav.topnav span.soon{color:#565d65;cursor:default;display:flex;align-items:center;gap:6px}
+  nav.topnav span.soon::after{content:"Soon";font-size:.56rem;letter-spacing:.1em;color:#565d65;
+    border:1px solid var(--line-bright);padding:1px 5px}
 </style>
 
 <div class="wrap">
@@ -93,11 +146,13 @@
     <div class="status">AGENT LVL 40<br>VERDICTS: <b>LIVE</b></div>
   </header>
 
+
   <nav class="topnav" aria-label="Section">
     <a href="index.html">Home</a>
     <a href="division2-talent-lookup.html" class="active">Talents</a>
     <a href="division2-weapons.html">Weapons</a>
     <a href="division2-gear.html">Gear</a>
+    <a href="division2-attributes.html">Attributes</a>
     <span class="soon">Builds</span>
   </nav>
 
@@ -143,52 +198,6 @@
 </div>
 
 <script>
-/* ============================================================================
-   MAINTENANCE SPEC — read this before editing the talent data below.
-   Intended for a future Claude Cowork session asked to "update this file
-   against the latest game patch." Everything needed to refresh it is here.
-   ----------------------------------------------------------------------------
-   PRIMARY SOURCE (authoritative, current):
-     The Division Wiki / Fandom — Talents/Tom Clancy's The Division 2
-     https://thedivision.fandom.com/wiki/Talents/Tom_Clancy's_The_Division_2
-     (Note: this domain blocks automated fetch/bot access. If a direct fetch
-      fails, ask the user to save the page as HTML and upload it, then parse
-      the <tr>/<td> rows — columns are: Name | Normal | Perfect | Class.)
-   SECONDARY (sanity-check only, may be outdated/SEO): tier-list sites,
-     vendor-roll trackers. Wiki wins on any conflict.
-   ----------------------------------------------------------------------------
-   ENTRY SCHEMA (each object in DATA):
-     n : string  talent name (display + search key)
-     t : "weapon" | "gear"        (gear = chest or backpack only)
-     v : "keep" | "sit" | "skip"  verdict (sit = situational)
-     d : string  what it does — short, factual, lead with the weapon CLASS
-                 (e.g. "Any weapon.", "LMGs.", "Rifles / MMR / Pistols.")
-     w : string  the verdict rationale ("why") — practical sorting advice
-   ----------------------------------------------------------------------------
-   VERDICT TUNING (keep consistent when adding/editing):
-     Audience = SOLO, level-40, PvE, gearing toward a first crit/headshot build.
-     keep = build-defining DPS, or top-tier utility (Optimist, Killer, Measured,
-            Rifleman, Determined, Overflowing, Frenzy, Unhinged, Strained,
-            Breadbasket, Ranger, Fast Hands).
-     sit  = good only inside a specific build (skill, status/pulse/bleed/burn,
-            shotgun, swap, group) or pure utility with no damage.
-     skip = handling-only or requires playing at zero armour (Near Sighted,
-            On Empty, Naked).
-   ----------------------------------------------------------------------------
-   INCLUSION RULES (do not break these on update):
-     1. WEAPON: include only ROLLABLE talents (those whose wiki "Class" column
-        is a weapon type or "Any/All weapons"). EXCLUDE talents locked to a
-        named/exotic weapon — currently Allegro (Invisible Hand), Extra
-        (Rock'n'Roll), Jazz Hands. If the wiki adds/removes/renames any, mirror it.
-     2. GEAR: only CHEST and BACKPACK pieces roll talents in this game — no
-        other slot does. Do not add gear-talent entries for mask/gloves/
-        holster/kneepads. Keep chest vs backpack noted in the `d` field.
-     3. If a patch changes a talent's numbers, update `d` (and `w` if the
-        verdict shifts). If it's reworked enough to change tier, update `v`.
-     4. After editing, re-run the self-check in the validator at the bottom
-        of this script (it counts entries and flags malformed objects).
-   CURRENT COUNTS (update if you change them): 39 weapon, 15 gear = 54 total.
-   ============================================================================ */
 const DATA = [
   // ---------- WEAPON TALENTS · all classes ----------
   {n:"Optimist", t:"weapon", v:"keep", d:"Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.", w:"Core DPS talent. Best on high-capacity LMGs, ARs and rifles."},
@@ -282,7 +291,8 @@ function render(){
     }
     return true;
   });
-  rows.sort((a,b)=> a.n.localeCompare(b.n));
+  const order = {keep:0, sit:1, skip:2};
+  rows.sort((a,b)=> order[a.v]-order[b.v] || a.n.localeCompare(b.n));
 
   count.innerHTML = '<b>'+rows.length+'</b> / '+DATA.length+' talents';
 
@@ -320,18 +330,4 @@ filters.addEventListener('click', e=>{
 q.addEventListener('input', render);
 clearBtn.addEventListener('click', ()=>{ q.value=''; q.focus(); render(); });
 render();
-
-/* --- self-check (for maintenance; logs to browser console, no UI impact) --- */
-(function validate(){
-  const w = DATA.filter(x=>x.t==='weapon').length;
-  const g = DATA.filter(x=>x.t==='gear').length;
-  const vset = new Set(['keep','sit','skip']);
-  const tset = new Set(['weapon','gear']);
-  const bad = DATA.filter(x=>!x.n||!x.d||!x.w||!vset.has(x.v)||!tset.has(x.t));
-  const dupes = DATA.map(x=>x.n).filter((n,i,a)=>a.indexOf(n)!==i);
-  console.log(`[talent-lookup] weapon:${w} gear:${g} total:${DATA.length}`);
-  if(bad.length)   console.warn('[talent-lookup] malformed entries:', bad.map(x=>x.n||'(no name)'));
-  if(dupes.length) console.warn('[talent-lookup] duplicate names:', dupes);
-  if(!bad.length && !dupes.length) console.log('[talent-lookup] self-check OK');
-})();
 </script>

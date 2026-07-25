@@ -7,7 +7,7 @@
   Weapons     → division2-weapons.html
   Gear        → division2-gear.html
   Attributes  → division2-attributes.html
-  Builds      → division2-builds.html   (not yet built — card is disabled)
+  Builds      → division2-builds.html
   ══════════════════════════════════════════════════════════════════
 -->
 <meta charset="utf-8">
@@ -49,8 +49,7 @@
   .tool-card.red{--c:var(--red)}.tool-card.red:hover{border-color:rgba(224,82,74,.35)}
   .tool-card.blue{--c:var(--blue)}.tool-card.blue:hover{border-color:rgba(74,158,212,.35)}
   .tool-card.purple{--c:var(--purple)}.tool-card.purple:hover{border-color:rgba(155,111,224,.35)}
-  /* disabled — Builds not yet built */
-  .tool-card.wip{pointer-events:none;opacity:.6}
+  .tool-card.purple{--c:var(--purple)}.tool-card.purple:hover{border-color:rgba(155,111,224,.35)}
 
   .card-eyebrow{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;
     color:var(--c,var(--amber));margin-bottom:10px}
@@ -63,10 +62,6 @@
   .card-cta{font-family:var(--display);font-size:.72rem;letter-spacing:.22em;
     text-transform:uppercase;color:var(--c,var(--amber));display:flex;align-items:center;gap:8px}
   .card-cta::after{content:"→"}
-
-  .wip-badge{position:absolute;top:14px;right:14px;
-    font-family:var(--display);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;
-    padding:4px 9px;border:1px solid var(--purple);color:var(--purple);background:rgba(155,111,224,.1)}
 
   /* ── legend ── */
   .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;padding:13px 16px;
@@ -101,7 +96,7 @@
     <a href="division2-weapons.html">Weapons</a>
     <a href="division2-gear.html">Gear</a>
     <a href="division2-attributes.html">Attributes</a>
-    <span class="soon">Builds</span>
+    <a href="division2-builds.html">Builds</a>
   </nav>
 
   <div class="intro">
@@ -181,24 +176,22 @@
       <div class="card-cta">Open Attributes</div>
     </a>
 
-    <!-- 05 · Builds — WIP -->
-    <div class="tool-card purple wip" aria-disabled="true">
-      <div class="wip-badge">In Progress</div>
+    <!-- 05 · Builds -->
+    <a class="tool-card purple" href="division2-builds.html">
       <div class="card-eyebrow">Field Reference · 05</div>
       <h2 class="card-title">Builds</h2>
       <p class="card-desc">
         Recommended archetypes with target gear sets, talent selections, and stat thresholds.
-        Covers the five core PvE build paths.
+        Filterable by DPS, Skill, Tank, and Support.
       </p>
       <div class="card-tags">
         <span class="tag">DPS</span>
-        <span class="tag">Skill Damage</span>
-        <span class="tag">Skill Healer</span>
+        <span class="tag">Skill</span>
         <span class="tag">Tank</span>
-        <span class="tag">All-Rounder</span>
+        <span class="tag">Support</span>
       </div>
-      <div class="card-cta">Coming Soon</div>
-    </div>
+      <div class="card-cta">Open Builds</div>
+    </a>
 
   </div><!-- /grid -->
 

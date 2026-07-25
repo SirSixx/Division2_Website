@@ -5,44 +5,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
+  /* page-specific tokens only — base palette, header, nav.topnav, footer, .wrap
+     now come from styles.css */
   :root{
-    --bg:#0b0d0f;--panel:#14171b;--panel-2:#191d22;--line:#262c33;--line-bright:#39424c;
-    --text:#e8e6e0;--muted:#8a929b;--amber:#ff8c1a;--amber-dim:#b86413;
     --keep:#54c06e;--keep-bg:rgba(84,192,110,.10);
     --sit:#ffb340;--sit-bg:rgba(255,179,64,.10);
     --skip:#e0524a;--skip-bg:rgba(224,82,74,.10);
-    --display:"Oswald","Arial Narrow",sans-serif;
-    --mono:"JetBrains Mono",ui-monospace,"Courier New",monospace;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);
-    -webkit-font-smoothing:antialiased}
-  body{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px)}
-  .wrap{max-width:1080px;margin:0 auto;padding:22px 18px 80px}
-
-  header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;
-    border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:0;flex-wrap:wrap}
-  .brand{display:flex;align-items:center;gap:14px}
-  .sigil{width:38px;height:38px;flex:0 0 38px;position:relative;transform:rotate(45deg);border:2px solid var(--amber)}
-  .sigil::after{content:"";position:absolute;inset:6px;border:2px solid var(--amber-dim)}
-  .sigil::before{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;
-    margin:-3px 0 0 -3px;background:var(--amber);box-shadow:0 0 10px var(--amber)}
-  h1{font-family:var(--display);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
-    font-size:1.5rem;margin:0;line-height:1}
-  .sub{font-size:.66rem;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;margin-top:5px}
-  .status{font-size:.62rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;text-align:right}
-  .status b{color:#54c06e}
-
-  nav.topnav{display:flex;gap:2px;margin:0 0 24px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-  nav.topnav a,nav.topnav span{font-family:var(--display);font-weight:500;letter-spacing:.16em;
-    text-transform:uppercase;font-size:.7rem;color:var(--muted);text-decoration:none;
-    padding:11px 16px;border-bottom:2px solid transparent;transition:.12s}
-  nav.topnav a:hover{color:var(--text)}
-  nav.topnav a.active{color:var(--amber);border-bottom-color:var(--amber)}
-  nav.topnav span.soon{color:#565d65;cursor:default;display:flex;align-items:center;gap:6px}
-  nav.topnav span.soon::after{content:"Soon";font-size:.56rem;letter-spacing:.1em;color:#565d65;
-    border:1px solid var(--line-bright);padding:1px 5px}
 </style>
 
 <div class="wrap">
@@ -63,7 +34,7 @@
     <a href="division2-weapons.html">Weapons</a>
     <a href="division2-gear.html">Gear</a>
     <a href="division2-attributes.html" class="active">Attributes</a>
-    <span class="soon">Builds</span>
+    <a href="division2-builds.html">Builds</a>
   </nav>
 
   <style>

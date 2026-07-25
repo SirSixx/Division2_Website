@@ -52,9 +52,10 @@
   .card.f-hybrid::before{background:var(--core-hybrid)}
 
   /* ── set/brand logo watermark ──
-     Drop a logo file at  logos/<slug>.png  (slug = set name, lower-case,
-     spaces→hyphens, punctuation/parentheticals stripped — e.g.
-     "Striker's Battlegear" → logos/strikers-battlegear.png).
+     Drop a logo file at  logos/<name>.png  where <name> is the set's FIRST word,
+     lower-case, apostrophes/periods/parentheticals stripped — e.g.
+     "Striker's Battlegear" → logos/strikers.png, "Richter & Kaiser" → logos/richter.png.
+     Same-first-word clashes are mapped explicitly in LOGO_NAME (see the JS).
      Missing files simply show nothing. Tune look with the .wm rule below.
      Per-set override: add  "logo":"logos/whatever.png"  to a DATA entry. */
   .wm{position:absolute;right:6px;bottom:6px;width:150px;height:150px;
