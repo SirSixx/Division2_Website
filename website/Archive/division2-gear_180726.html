@@ -5,13 +5,41 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-<style>:root{
-  --core-red:#e0524a;--core-red-bg:rgba(224,82,74,.10);
-  --core-yellow:#e0c34a;--core-yellow-bg:rgba(224,195,74,.10);
-  --core-blue:#4a9fe0;--core-blue-bg:rgba(74,159,224,.10);
-  --core-hybrid:#a98ce0;--core-hybrid-bg:rgba(169,140,224,.10);
-}
+<style>
+  :root{
+    --bg:#0b0d0f;--panel:#14171b;--panel-2:#191d22;--line:#262c33;--line-bright:#39424c;
+    --text:#e8e6e0;--muted:#8a929b;--amber:#ff8c1a;--amber-dim:#b86413;
+    --core-red:#e0524a;--core-red-bg:rgba(224,82,74,.10);
+    --core-yellow:#e0c34a;--core-yellow-bg:rgba(224,195,74,.10);
+    --core-blue:#4a9fe0;--core-blue-bg:rgba(74,159,224,.10);
+    --core-hybrid:#a98ce0;--core-hybrid-bg:rgba(169,140,224,.10);
+    --display:"Oswald","Arial Narrow",sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,"Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);-webkit-font-smoothing:antialiased}
+  body{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px)}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 18px 80px}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;
+    border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:0;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .sigil{width:38px;height:38px;flex:0 0 38px;position:relative;transform:rotate(45deg);border:2px solid var(--amber)}
+  .sigil::after{content:"";position:absolute;inset:6px;border:2px solid var(--amber-dim)}
+  .sigil::before{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;
+    margin:-3px 0 0 -3px;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+  h1{font-family:var(--display);font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:1.5rem;margin:0;line-height:1}
+  .sub{font-size:.66rem;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;margin-top:5px}
+  .status{font-size:.62rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;text-align:right}
+  .status b{color:#54c06e}
+
+  nav.topnav{display:flex;gap:2px;margin:0 0 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  nav.topnav a,nav.topnav span{font-family:var(--display);font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+    font-size:.7rem;color:var(--muted);text-decoration:none;padding:11px 16px;border-bottom:2px solid transparent;transition:.12s}
+  nav.topnav a:hover{color:var(--text)}
+  nav.topnav a.active{color:var(--amber);border-bottom-color:var(--amber)}
+  nav.topnav span.soon{color:#565d65;cursor:default;display:flex;align-items:center;gap:6px}
+  nav.topnav span.soon::after{content:"Soon";font-size:.56rem;letter-spacing:.1em;color:#565d65;border:1px solid var(--line-bright);padding:1px 5px}
 
   .intro{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);padding:14px 16px;margin-bottom:18px}
   .intro h2{font-family:var(--display);font-weight:500;letter-spacing:.2em;text-transform:uppercase;font-size:.74rem;color:var(--amber);margin:0 0 10px}
@@ -51,19 +79,6 @@
   .card.f-tank::before{background:var(--core-blue)}
   .card.f-hybrid::before{background:var(--core-hybrid)}
 
-  /* ── set/brand logo watermark ──
-     Drop a logo file at  logos/<name>.png  where <name> is the set's FIRST word,
-     lower-case, apostrophes/periods/parentheticals stripped — e.g.
-     "Striker's Battlegear" → logos/strikers.png, "Richter & Kaiser" → logos/richter.png.
-     Same-first-word clashes are mapped explicitly in LOGO_NAME (see the JS).
-     Missing files simply show nothing. Tune look with the .wm rule below.
-     Per-set override: add  "logo":"logos/whatever.png"  to a DATA entry. */
-  .wm{position:absolute;right:6px;bottom:6px;width:150px;height:150px;
-    background-repeat:no-repeat;background-position:center;background-size:contain;
-    opacity:.08;filter:grayscale(1);pointer-events:none;z-index:0}
-  .card::before{z-index:2}
-  .card .ctop,.card .pieces,.card .roll{position:relative;z-index:1}
-
   .ctop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
   .cname{font-family:var(--display);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:1.05rem;line-height:1.1}
   .cslot{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:4px}
@@ -96,6 +111,8 @@
 
   .empty{text-align:center;color:var(--muted);font-size:.8rem;padding:50px 0;letter-spacing:.1em}
   .empty b{color:var(--text)}
+
+  footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);font-size:.64rem;line-height:1.6;color:var(--muted);letter-spacing:.03em}
 </style>
 
 <div class="wrap">
@@ -115,6 +132,7 @@
     <a href="division2-talent-lookup.html">Talents</a>
     <a href="division2-weapons.html">Weapons</a>
     <a href="division2-gear.html" class="active">Gear</a>
+    <a href="division2-attributes.html">Attributes</a>
     <span class="soon">Builds</span>
   </nav>
 
@@ -1903,15 +1921,6 @@ const filtersEl = document.getElementById('filters');
 let typeF = 'all', focusF = 'all';
 
 function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-const LOGO_NAME = { "Ortiz: Exuro":"exuro", "Ortiz: Reficere":"reficere" }; // disambiguate same-first-word sets
-function logoSrc(x){
-  if(x.logo) return x.logo;                       // explicit per-set path override (e.g. demo)
-  const base = LOGO_NAME[x.n] || x.n.toLowerCase()
-    .replace(/\([^)]*\)/g,'')                      // drop "(Dark Zone Exclusive)" etc.
-    .replace(/['’.]/g,'')                          // drop apostrophes / periods
-    .match(/[a-z0-9]+/)[0];                        // first word only → e.g. "richter"
-  return 'logos/'+base+'.png';
-}
 function hl(s,term){
   if(!term) return esc(s);
   const i = String(s).toLowerCase().indexOf(term.toLowerCase());
@@ -1961,7 +1970,6 @@ function render(){
     }
 
     return `<div class="card f-${x.focus}">
-      <div class="wm" style="background-image:url('${logoSrc(x)}')"></div>
       <div class="ctop">
         <div>
           <div class="cname">${hl(x.n,term)}</div>
