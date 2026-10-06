@@ -1,0 +1,21 @@
+{
+  // Cloudflare Worker config for the SHD Field Toolkit.
+  // "name" MUST match the Worker in the dashboard, or a deploy creates a new one.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "green-feather-79f5",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-01",
+
+  // The website/ folder is served as static files. Only /api/* runs code.
+  "assets": {
+    "directory": "./website",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+
+  // Keep the variables set in the dashboard (Settings → Variables and Secrets).
+  // Without this, every deploy would wipe the plain-text ones.
+  "keep_vars": true,
+
+  "observability": { "enabled": true }
+}

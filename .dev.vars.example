@@ -1,5 +1,5 @@
 # Copy to .dev.vars (git-ignored) for local testing with:
-#   npx wrangler pages dev website
+#   npx wrangler dev
 # then open http://localhost:8788
 SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
