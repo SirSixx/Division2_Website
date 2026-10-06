@@ -1,0 +1,8 @@
+# Copy to .dev.vars (git-ignored) for local testing with:
+#   npx wrangler pages dev website
+# then open http://localhost:8788
+SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SECRET_KEY=sb_secret_...
+# Skips the Cloudflare Access check, but only for requests to localhost
+DEV_ALLOW_NO_ACCESS=true
