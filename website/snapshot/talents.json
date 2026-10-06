@@ -1,0 +1,380 @@
+[
+  {
+    "n": "Optimist",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Any weapon. +3% weapon damage for every 10% of ammo missing from the magazine.",
+    "w": "Core DPS talent. Best on high-capacity LMGs, ARs and rifles."
+  },
+  {
+    "n": "Killer",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Any weapon. Killing with a critical hit grants +40% critical hit damage for 10s.",
+    "w": "Pure crit-DPS gain. Pairs with any high-CHC build — the Striker/St. Elmo's staple."
+  },
+  {
+    "n": "Ranger",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Any weapon. +2% weapon damage for every 5m of distance to the target.",
+    "w": "Strong AR / rifle DPS for ranged solo play. Easy uptime at distance."
+  },
+  {
+    "n": "Breadbasket",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Any weapon. Body shots stack bonus headshot damage onto your next headshot (up to 3 stacks).",
+    "w": "Big for headshot builds — especially on full-auto where heads are hard to land. Off-build for pure crit."
+  },
+  {
+    "n": "Strained",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Any weapon. +10% critical hit damage for every 0.5s of continuous fire, stacks up to 5.",
+    "w": "Strong sustained crit-damage on automatics. Wants high crit chance to pay off."
+  },
+  {
+    "n": "Fast Hands",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Any weapon. Critical hits stack a +4% reload-speed bonus (max 40%).",
+    "w": "Utility that keeps LMGs/ARs firing. Pairs naturally with Killer/crit builds."
+  },
+  {
+    "n": "In Sync",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Hitting an enemy grants +15% skill damage; using a skill (or hitting with one) grants +15% weapon damage.",
+    "w": "Excellent on hybrid / skill-DPS builds. Dead weight on a pure red build."
+  },
+  {
+    "n": "Flatline",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. +15% weapon damage to pulsed enemies; after 3 kills, applies pulse to the next enemy you hit.",
+    "w": "Pulse-status synergy (pairs with Spotter / skill builds). Off-build for crit."
+  },
+  {
+    "n": "Vindictive",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Killing a status-afflicted enemy grants you and allies in 15m +15% crit chance & crit damage for 20s.",
+    "w": "Excellent in groups or status builds. Solo it still buffs you, but needs a status source."
+  },
+  {
+    "n": "Sadist",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. +20% weapon damage to bleeding enemies; applies bleed after 4 kills.",
+    "w": "Status-build synergy. Off a crit build it's filler."
+  },
+  {
+    "n": "Ignited",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. +20% weapon damage to burning enemies; applies burn after 4 kills.",
+    "w": "Good with fire/skill (incendiary) builds. Otherwise skip."
+  },
+  {
+    "n": "Eyeless",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. +20% weapon damage to blinded enemies; applies blind after 4 kills.",
+    "w": "Niche — needs a blind source or the self-apply to matter."
+  },
+  {
+    "n": "Spike",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Headshots grant +20% skill damage for 15s.",
+    "w": "Skill-build only. Dead on a weapon-damage build."
+  },
+  {
+    "n": "Perpetuation",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Headshots boost the damage & duration of your next status effect (+50%).",
+    "w": "Niche status / skill sustain."
+  },
+  {
+    "n": "Reformation",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Headshots grant +30% skill repair for 15s.",
+    "w": "Healer / support skill builds only."
+  },
+  {
+    "n": "Preservation",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Kills repair 10% armour over 5s; headshot kills repair an extra 10%.",
+    "w": "Handy survivability while you're gearing solo — usually dropped at full endgame DPS."
+  },
+  {
+    "n": "Future Perfect",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Weapon kills grant +1 skill tier for 15s (stacks to 3); kills at tier 6 grant Overcharge.",
+    "w": "Strong on skill-tier builds — irrelevant to weapon-damage builds."
+  },
+  {
+    "n": "Sledgehammer",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Grenade damage marks targets; marked enemies take +30% armour damage and move slower.",
+    "w": "Niche armour-shred utility. Not a general DPS pick."
+  },
+  {
+    "n": "Steady Handed",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Any weapon. Hits stack +1% accuracy & stability; at 100 stacks consumes them to refill the mag.",
+    "w": "Light utility, mostly for hard-to-control weapons. Not a damage pick."
+  },
+  {
+    "n": "Close & Personal",
+    "t": "weapon",
+    "v": "sit",
+    "d": "All weapons. Killing a target within 7m grants +30% weapon damage for 10s.",
+    "w": "Risky at high difficulty; aggressive close-range only."
+  },
+  {
+    "n": "Measured",
+    "t": "weapon",
+    "v": "keep",
+    "d": "AR / SMG / LMG. Top half of the mag = higher RPM; bottom half = +30% total weapon damage.",
+    "w": "Strong sustained DPS, excellent on LMGs. Top-tier."
+  },
+  {
+    "n": "Rifleman",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Rifles. Each headshot stacks +10% weapon damage for 5s (up to 5); headshots refresh it.",
+    "w": "+50% at full stacks for headshot play. The rifle headshot-build staple."
+  },
+  {
+    "n": "Determined",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Rifles / MMR / Pistols. After a headshot kill, your next shot on any enemy is a guaranteed headshot.",
+    "w": "Excellent for headshot/rifle builds — turns body shots into heads to keep the chain going."
+  },
+  {
+    "n": "Overflowing",
+    "t": "weapon",
+    "v": "keep",
+    "d": "Assault Rifles. Every 3 reloads-from-empty doubles your base magazine size.",
+    "w": "Huge AR mag pairs beautifully with Optimist. AR DPS favourite."
+  },
+  {
+    "n": "Frenzy",
+    "t": "weapon",
+    "v": "keep",
+    "d": "LMGs. Per 10 rounds of mag capacity, gain +3% RPM and +3% weapon damage for 5s on reload-from-empty.",
+    "w": "High burst on big-mag LMGs."
+  },
+  {
+    "n": "Unhinged",
+    "t": "weapon",
+    "v": "keep",
+    "d": "LMGs. +18% weapon damage at the cost of -25% stability and -25% accuracy.",
+    "w": "Top raw damage if you offset the downside with stability mods/attributes."
+  },
+  {
+    "n": "Boomerang",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Rifles. Crit hits have a 50% chance to return the bullet to the mag; the returned shot hits +40% harder.",
+    "w": "Niche ammo-economy/crit scaling — situational versus simpler picks."
+  },
+  {
+    "n": "Lucky Shot",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Rifles / MMR / Pistols. +20% magazine capacity; missed shots from cover return to the mag.",
+    "w": "Ammo-economy utility, not a damage gain."
+  },
+  {
+    "n": "First Blood",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Marksman Rifles. First scoped shot out of combat counts as a headshot (needs 8x+ scope).",
+    "w": "PvP-leaning opener. Inconsistent and low value for PvE."
+  },
+  {
+    "n": "Finisher",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Pistols. Swapping away within 10s of a kill grants +30% crit chance & crit damage for 15s.",
+    "w": "Good for sidearm swap-DPS rotations; pointless if you don't swap."
+  },
+  {
+    "n": "Salvage",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Pistols. Kills have a 70% chance to refill the magazine.",
+    "w": "Light sustain for a sidearm. Niche."
+  },
+  {
+    "n": "Pummel",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Shotguns. Three consecutive kills refill the mag and grant +40% weapon damage for 10s.",
+    "w": "Shotgun-build payoff; needs the kill streak to fire."
+  },
+  {
+    "n": "Pumped Up",
+    "t": "weapon",
+    "v": "sit",
+    "d": "Shotguns. Each reload stacks +1% weapon damage for 10s (up to 25).",
+    "w": "Ramp-up shotgun talent. Slow to build, shotgun-only."
+  },
+  {
+    "n": "Outsider",
+    "t": "weapon",
+    "v": "sit",
+    "d": "SMGs. After a kill, gain +100% optimal range and accuracy for 10s.",
+    "w": "Lets SMGs reach further post-kill. Utility, not raw damage."
+  },
+  {
+    "n": "Unwavering",
+    "t": "weapon",
+    "v": "sit",
+    "d": "SMGs. Swapping to this weapon grants +300% handling for 5s; kills refresh it.",
+    "w": "Swap-build handling crutch. Very niche."
+  },
+  {
+    "n": "Overwhelm",
+    "t": "weapon",
+    "v": "sit",
+    "d": "LMGs. Suppressing a not-yet-suppressed enemy grants +10% weapon damage for 12s (up to 4 stacks).",
+    "w": "Rewards LMG suppression playstyle. Situational versus Optimist/Measured."
+  },
+  {
+    "n": "Near Sighted",
+    "t": "weapon",
+    "v": "skip",
+    "d": "Assault Rifles. +80% stability at the cost of -35% optimal range.",
+    "w": "Pure handling trade — no damage. Skip for DPS."
+  },
+  {
+    "n": "On Empty",
+    "t": "weapon",
+    "v": "skip",
+    "d": "Assault Rifles. Reloading from empty grants +30% weapon handling for 10s.",
+    "w": "Marginal quality-of-life. Not worth a slot."
+  },
+  {
+    "n": "Naked",
+    "t": "weapon",
+    "v": "skip",
+    "d": "Marksman Rifles. While your armour is depleted, gain +50% headshot damage for 5s.",
+    "w": "Needs you to play at zero armour — too risky for general PvE."
+  },
+  {
+    "n": "Obliterate",
+    "t": "gear",
+    "v": "keep",
+    "d": "Chest. Critical hits grant stacking total weapon damage.",
+    "w": "The default crit-DPS chest talent. Keep every clean roll."
+  },
+  {
+    "n": "Vigilance",
+    "t": "gear",
+    "v": "keep",
+    "d": "Chest. Large weapon-damage bonus while you haven't recently taken damage.",
+    "w": "Outstanding for solo cover play. High uptime if you don't get tagged."
+  },
+  {
+    "n": "Intimidate",
+    "t": "gear",
+    "v": "keep",
+    "d": "Chest. Bonus weapon damage to enemies within a short radius while your armour is up.",
+    "w": "Strong for close/mid SMG and shotgun builds."
+  },
+  {
+    "n": "Glass Cannon",
+    "t": "gear",
+    "v": "keep",
+    "d": "Chest. Big all-damage increase in exchange for taking much more damage.",
+    "w": "Top ceiling DPS — for confident players who don't get hit. Risky solo."
+  },
+  {
+    "n": "Spark",
+    "t": "gear",
+    "v": "sit",
+    "d": "Chest. Applying a status effect grants bonus skill damage.",
+    "w": "Skill-build chest. Dead on a weapon-damage build."
+  },
+  {
+    "n": "Tagged",
+    "t": "gear",
+    "v": "sit",
+    "d": "Chest. Bonus damage to enemies marked by your skills.",
+    "w": "Decent with pulse / marking skills; situational otherwise."
+  },
+  {
+    "n": "Unbreakable",
+    "t": "gear",
+    "v": "sit",
+    "d": "Chest. Repairs a large chunk of armour when your armour breaks.",
+    "w": "Survivability — useful while gearing or in tank builds."
+  },
+  {
+    "n": "Composure",
+    "t": "gear",
+    "v": "keep",
+    "d": "Backpack. Bonus critical hit chance and handling while in cover.",
+    "w": "Excellent for cover-based solo DPS. Keep clean rolls."
+  },
+  {
+    "n": "Vigorous",
+    "t": "gear",
+    "v": "sit",
+    "d": "Backpack. Bonus armour while at full armour.",
+    "w": "Tank / survivability filler. Not a DPS pick."
+  },
+  {
+    "n": "Combined Arms",
+    "t": "gear",
+    "v": "sit",
+    "d": "Backpack. Hitting with your skill boosts weapon damage briefly.",
+    "w": "Solid on hybrid builds; situational on pure red."
+  },
+  {
+    "n": "Overclock",
+    "t": "gear",
+    "v": "sit",
+    "d": "Backpack. Reloading from the ammo box grants rate of fire.",
+    "w": "Pairs with Fast Hands on LMGs. Niche otherwise."
+  },
+  {
+    "n": "Adrenaline Rush",
+    "t": "gear",
+    "v": "sit",
+    "d": "Backpack. Bonus armour on kill, stacking.",
+    "w": "Survivability for aggressive play; fine while gearing."
+  },
+  {
+    "n": "Calculated",
+    "t": "gear",
+    "v": "sit",
+    "d": "Backpack. Cover-to-cover kills reduce skill cooldowns.",
+    "w": "Skill-build sustain. Skip on weapon builds."
+  },
+  {
+    "n": "Bloodsucker",
+    "t": "gear",
+    "v": "sit",
+    "d": "Backpack. Applying status effects grants stacking bonus armour.",
+    "w": "Status / survivability synergy. Situational."
+  },
+  {
+    "n": "Clutch",
+    "t": "gear",
+    "v": "sit",
+    "d": "Backpack. Critical hits repair armour while below a health threshold.",
+    "w": "Lifesaver in tight solo fights; lower priority at full gear."
+  }
+]

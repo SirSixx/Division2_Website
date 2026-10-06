@@ -1,0 +1,676 @@
+[
+  {
+    "id": "striker-sixx",
+    "cat": "dps",
+    "name": "Striker: Sixx",
+    "subtitle": "Striker build for newer players who need to not be so squishy.",
+    "diff": "easy",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Coyote’s Mask",
+        "logo": "coyotes",
+        "talent": "Pack Instincts",
+        "exotic": true
+      },
+      {
+        "slot": "CHEST",
+        "set": "Uzina Getica",
+        "logo": "uzina",
+        "talent": "Unbreakable"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Striker's Battlegear",
+        "logo": "strikers",
+        "talent": "Risk Management"
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "AR - Killer. High rate of fire. Lexington. \n\nSecondary either AC Shotgun or for those troublesome times Emeline's Guard - P90 for 15% armour on kill over 5 seconds."
+      },
+      {
+        "l": "Skills",
+        "v": "Shield - Crusader or Striker\nReviver Hive"
+      },
+      {
+        "l": "Exotic",
+        "v": "St. Elmo's Engine"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "5* Red 1* Blue"
+      }
+    ],
+    "playstyle": "You can play from cover and then use the shield when flanked. Unbreakable is a life saver."
+  },
+  {
+    "id": "striker-gaming-brigade",
+    "cat": "dps",
+    "name": "Striker - Gaming Brigade",
+    "subtitle": "No Shield - Self Healing",
+    "diff": "easy",
+    "spec": "Gunner",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Catharsis",
+        "logo": "catharsis",
+        "talent": "Vicious Cycle",
+        "exotic": true
+      },
+      {
+        "slot": "CHEST",
+        "set": "Palisade Steelworks",
+        "logo": "palisade",
+        "talent": "Obliterate"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Striker's Battlegear",
+        "logo": "strikers",
+        "talent": "Risk Management"
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "AR with Preservation (Lexington)\nLMG or Shotgun"
+      },
+      {
+        "l": "Skills",
+        "v": "Pulse\nDefender Drone"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "4 * Blue 2 * Red"
+      }
+    ],
+    "playstyle": "Keep shooting but you will have a bit more survivability without have the shield."
+  },
+  {
+    "id": "striker-memento",
+    "cat": "dps",
+    "name": "Striker: Memento",
+    "subtitle": "Sustained AR / LMG — the endgame starting point",
+    "diff": "easy",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      },
+      {
+        "slot": "CHEST",
+        "set": "Unit Alloys",
+        "logo": "unit",
+        "talent": "Perfect Obliterate"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Memento",
+        "logo": "memento",
+        "talent": "Kill Confirmed",
+        "exotic": true
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Striker's Battlegear",
+        "logo": "strikers"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "Primary - AR With fast fire rate. Killer.\nSecondary - SMG or ACS-12 "
+      },
+      {
+        "l": "Skills",
+        "v": "Crusader Shield\nRevive Hive"
+      },
+      {
+        "l": "Exotic",
+        "v": "St. Elmo's Engine AR"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "6× Red (Weapon Damage)"
+      },
+      {
+        "l": "Attribs",
+        "v": "Crit Chance to ~60%\nthen stack Crit Damage"
+      }
+    ],
+    "playstyle": "Just keep shooting."
+  },
+  {
+    "id": "bulwark-sixx",
+    "cat": "tank",
+    "name": "Bulwark: Sixx",
+    "subtitle": "Shield Build for the Assault Global Event",
+    "diff": "easy",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Foundry Bulwark",
+        "logo": "foundry"
+      },
+      {
+        "slot": "CHEST",
+        "set": "Foundry Bulwark",
+        "logo": "foundry",
+        "talent": "Makeshift Repairs"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Foundry Bulwark",
+        "logo": "foundry",
+        "talent": "Process Refinery"
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Uzina Getica",
+        "logo": "uzina"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Centurion Scabbard",
+        "logo": "centurion",
+        "talent": "Counter",
+        "exotic": true
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Foundry Bulwark",
+        "logo": "foundry"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "Primary - AR\nSecondary - ACS12"
+      },
+      {
+        "l": "Skills",
+        "v": "Crusader Shield\nReviver Hive "
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "5* Blue 1* Red"
+      }
+    ],
+    "playstyle": "This is for getting up close and making use of the double weapon damange from the Assault Event"
+  },
+  {
+    "id": "hunter-fury-gaming-brigade",
+    "cat": "dps",
+    "name": "Hunter Fury - Gaming Brigade",
+    "subtitle": "In their face killer",
+    "diff": "easy",
+    "spec": "Gunner",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Hunter's Fury",
+        "logo": "hunters"
+      },
+      {
+        "slot": "CHEST",
+        "set": "Sokolov Concern",
+        "logo": "sokolov",
+        "talent": "Intimidate"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Memento",
+        "logo": "memento",
+        "talent": "Kill Confirmed",
+        "exotic": true
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Hunter's Fury",
+        "logo": "hunters"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Hunter's Fury",
+        "logo": "hunters"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Hunter's Fury",
+        "logo": "hunters"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "SMG\nAR"
+      },
+      {
+        "l": "Skills",
+        "v": "Pulse\nDefender Drone"
+      },
+      {
+        "l": "Exotic",
+        "v": "Lady Death"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "3 * Red 3 * Blue"
+      }
+    ],
+    "playstyle": "Up close and melt everything."
+  },
+  {
+    "id": "heartbreaker",
+    "cat": "dps",
+    "name": "Heartbreaker: Pulse & Punish",
+    "subtitle": "AR / LMG burst DPS — second-highest single-target damage in the game",
+    "diff": "medium",
+    "spec": "Technician",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Coyote's Mask",
+        "logo": "coyote's",
+        "exotic": true,
+        "flexNote": "or 1pc Grupo Sombra"
+      },
+      {
+        "slot": "CHEST",
+        "set": "Heartbreaker",
+        "logo": "heartbreaker",
+        "talent": "Max BPM",
+        "warnTalent": true
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Ceska Vyroba s.r.o.",
+        "logo": "ceska",
+        "talent": "Vigilance"
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Heartbreaker",
+        "logo": "heartbreaker"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Heartbreaker",
+        "logo": "heartbreaker"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Heartbreaker",
+        "logo": "heartbreaker"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "Kingbreaker AR (named TKB-408 · Perfect Flatline: +20% damage to pulsed targets) primary\nShotgun or LMG secondary — builds stacks fast at fight start"
+      },
+      {
+        "l": "Skills",
+        "v": "Technician Linked Laser Pointer — pulses enemies on aim (passive)\nReviver Hive or Reinforcer Chem Launcher"
+      },
+      {
+        "l": "Exotic",
+        "v": "— (no exotic required)"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "6× Red — HB drops with blue cores, recalibrate to red at endgame"
+      },
+      {
+        "l": "Attribs",
+        "v": "Crit Chance 50–60%\nthen Crit Damage"
+      },
+      {
+        "l": "Note",
+        "v": "Fox's Prayer / Contractor's Gloves are NOT BIS on this build — use brand pieces for crit instead"
+      }
+    ],
+    "warn": "HB chest (Max BPM) raises the stack cap from 50 to 100 — do not swap it for another talent. The HB backpack is also not recommended; use Ceska with Vigilance instead for immediate damage with no ramp-up wait.",
+    "playstyle": "Heartstopper (4pc) pulses enemies on headshots. Each hit on a pulsed enemy stacks +1.1% weapon damage and +1% bonus armour, up to 100 stacks — that's +110% weapon damage as a separate multiplier at full stacks. Two stacks bleed off per second so maintain constant fire. The Technician's Linked Laser Pointer makes stacking consistent by pulsing the instant you aim, removing the need for headshots to prime the mechanic. Kingbreaker's Perfect Flatline layers an additional +20% onto pulsed targets. Strong survivability for a DPS build thanks to the stacked bonus armour."
+  },
+  {
+    "id": "hunters-fury",
+    "cat": "dps",
+    "name": "Hunter's Fury: Speed Farmer",
+    "subtitle": "CQC SMG — Control Points, open world, Summit lower floors",
+    "diff": "easy",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Hunter's Fury",
+        "logo": "hunter's"
+      },
+      {
+        "slot": "CHEST",
+        "set": "Hunter's Fury",
+        "logo": "hunter's",
+        "talent": "Intimidate"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Memento",
+        "logo": "memento",
+        "exotic": true,
+        "talent": "Momentum"
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Hunter's Fury",
+        "logo": "hunter's"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Hunter's Fury",
+        "logo": "hunter's"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Flex brand",
+        "logo": null,
+        "flex": true,
+        "flexNote": "Crit brand — Ceska or Grupo"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "SMG primary — Chatterbox or Dark Winter\nShotgun secondary for tight gaps"
+      },
+      {
+        "l": "Skills",
+        "v": "Striker Drone\nReviver Hive"
+      },
+      {
+        "l": "Exotic",
+        "v": "Memento backpack",
+        "opt": "materially stronger with it — build works without"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "6× Red (Weapon Damage)"
+      },
+      {
+        "l": "Attribs",
+        "v": "Crit Chance ~50%\nCrit Damage · Weapon Damage"
+      }
+    ],
+    "playstyle": "Hunter's Fury rewards aggression — Intimidate's damage bonus scales with proximity, so this build wants to be constantly in the enemy's face. Memento stacks weapon damage and armour regen as you chain kills, so momentum compounds on itself: the more you press forward, the harder and safer you become. Best for open-world patrol, Control Points, and Summit lower floors where closing distance is safe. Not suited to long-range Legendary content."
+  },
+  {
+    "id": "hotshot-sniper",
+    "cat": "dps",
+    "name": "Hotshot Sniper: Precision Farmer",
+    "subtitle": "MMR / Rifle headshot chain — Heroic missions and SHD farming",
+    "diff": "hard",
+    "spec": "Sharpshooter",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Hotshot",
+        "logo": "hotshot"
+      },
+      {
+        "slot": "CHEST",
+        "set": "Hotshot",
+        "logo": "hotshot",
+        "talent": "Perfect Headhunter"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Hotshot",
+        "logo": "hotshot",
+        "talent": "Vigilance"
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Hotshot",
+        "logo": "hotshot"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Flex brand",
+        "logo": null,
+        "flex": true,
+        "flexNote": "Headshot Damage brand"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Flex brand",
+        "logo": null,
+        "flex": true,
+        "flexNote": "Headshot Damage brand"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "Model 700 or 1886 Rifle · Determined talent\n(after headshot kill, next shot is guaranteed headshot)\nAR secondary for close-range fallback"
+      },
+      {
+        "l": "Skills",
+        "v": "Combat Scanner Pulse\nReviver Hive"
+      },
+      {
+        "l": "Exotic",
+        "v": "Nemesis exotic MMR",
+        "opt": "optional upgrade"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "6× Red — Headshot Damage as attribute on every piece"
+      },
+      {
+        "l": "Attribs",
+        "v": "Headshot Damage maximised\nacross all slots"
+      }
+    ],
+    "playstyle": "Perfect Headhunter (chest): after a headshot kill, your next hit deals +150% of the killing blow's damage (cap: 800% weapon damage, or 1250% if Headshot Damage exceeds 150%). Determined (weapon): after a headshot kill, the next shot is a guaranteed headshot — starting a chain. Hotshot's 4pc Headache ability cycles through bonuses on consecutive headshots: first boosts the next headshot 20%, second grants armour, third refills the mag, then repeats. When the chain flows, entire encounters dissolve in seconds. One body shot resets everything. Earn your mechanics on Striker first."
+  },
+  {
+    "id": "negotiators-pestilence",
+    "cat": "dps",
+    "name": "Negotiator's Dilemma: DoT Spreader",
+    "subtitle": "LMG · multi-target damage spread — relaxed and group-friendly",
+    "diff": "easy",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Negotiator's Dilemma",
+        "logo": "negotiator's"
+      },
+      {
+        "slot": "CHEST",
+        "set": "Negotiator's Dilemma",
+        "logo": "negotiator's",
+        "talent": "Obliterate"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Negotiator's Dilemma",
+        "logo": "negotiator's",
+        "talent": "Composure"
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Negotiator's Dilemma",
+        "logo": "negotiator's"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Flex brand",
+        "logo": null,
+        "flex": true,
+        "flexNote": "Crit brand"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Flex brand",
+        "logo": null,
+        "flex": true,
+        "flexNote": "Crit brand"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "Pestilence exotic LMG primary\n— viral DoT spreads between marked targets\nAR secondary for single-target cleanup"
+      },
+      {
+        "l": "Skills",
+        "v": "Pulse (mark synergy)\nSeeker Mine"
+      },
+      {
+        "l": "Exotic",
+        "v": "Pestilence LMG",
+        "opt": "core to the viral spread — Negotiator's still works without it but loses the DoT chain"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "6× Red (Weapon Damage / Crit)"
+      },
+      {
+        "l": "Attribs",
+        "v": "Crit Chance ~60%\nthen Crit Damage"
+      }
+    ],
+    "playstyle": "Negotiator's marks enemies — critical hits on one marked target deal a percentage of that damage to all other marked targets simultaneously. Pestilence adds a viral plague DoT that spreads between marked enemies. Tag a group, let the cross-damage and DoT chain multiply across them. Cover-friendly and momentum-free: no kill chain needed to maintain output. Naturally team-friendly since the DoT applies regardless of who finishes the kills. A relaxed, satisfying build in any dense encounter."
+  },
+  {
+    "id": "backfire",
+    "cat": "dps",
+    "name": "Backfire: Glass Cannon",
+    "subtitle": "Exotic SMG · high-risk run-and-gun — sort your bleed first",
+    "diff": "hard",
+    "slots": [
+      {
+        "slot": "MASK",
+        "set": "Ceska Vyroba s.r.o.",
+        "logo": "ceska"
+      },
+      {
+        "slot": "CHEST",
+        "set": "Ceska Vyroba s.r.o.",
+        "logo": "ceska",
+        "talent": "Obliterate"
+      },
+      {
+        "slot": "BACKPACK",
+        "set": "Memento",
+        "logo": "memento",
+        "exotic": true,
+        "talent": "Momentum"
+      },
+      {
+        "slot": "GLOVES",
+        "set": "Ceska Vyroba s.r.o.",
+        "logo": "ceska"
+      },
+      {
+        "slot": "HOLSTER",
+        "set": "Grupo Sombra S.A.",
+        "logo": "grupo"
+      },
+      {
+        "slot": "KNEEPADS",
+        "set": "Flex brand",
+        "logo": null,
+        "flex": true,
+        "flexNote": "Bleed Resist / Crit"
+      }
+    ],
+    "statsLeft": [
+      {
+        "l": "Weapons",
+        "v": "Backfire exotic SMG — mandatory, this is the build\nShotgun secondary for reload gaps"
+      },
+      {
+        "l": "Skills",
+        "v": "Reinforcer Chem Launcher\nReviver Hive"
+      },
+      {
+        "l": "Exotic",
+        "v": "Backfire SMG (mandatory)\nMemento backpack (strongly recommended)"
+      }
+    ],
+    "statsRight": [
+      {
+        "l": "Cores",
+        "v": "6× Red (Weapon Damage · Crit Damage)"
+      },
+      {
+        "l": "Attribs",
+        "v": "Crit Damage (Backfire inherently high)\nCrit Chance\nBleed Resistance via Hazard Protection mods"
+      }
+    ],
+    "warn": "Backfire bleeds you on every reload. This build only functions once Bleed Resistance is stacked high enough via Hazard Protection mods to negate the self-inflicted bleed. Without solving the bleed first, you will die to your own weapon. Build Striker first.",
+    "playstyle": "When the bleed mitigation is sorted, Backfire delivers an extremely kinetic, high-damage experience — massive inherent crit damage shreds targets at pace. Memento's armour regen on kills covers the survivability gaps between reloads. Stack Hazard Protection until the bleed is negated, get Memento stacks flowing early in each encounter, then stay aggressive. A genuinely fun build once it clicks; a frustrating one until it does."
+  }
+]

@@ -5,16 +5,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 <style>
 /* ============================================================================
    MAINTENANCE NOTE — read before editing
    ----------------------------------------------------------------------------
-   This is an AUTHORING TOOL, not a public reference page. It intentionally
-   breaks the toolkit's "no localStorage" rule (see design.md) because its
-   whole job is to hold an editable working database between visits. Every
-   other page in the toolkit stays read-only / session-only — this is the
-   one deliberate exception.
+   This is an AUTHORING TOOL, not a public reference page. It lives at
+   /admin/build-creator.html behind Cloudflare Access, and reads/writes
+   everything through the admin API (/api/admin/*), which stores it in
+   Supabase. Nothing is kept in localStorage any more.
+     - Gear sets / brand sets / named items → datasets ref-gearsets,
+       ref-brandsets, ref-named (unpublished; admin only)
+     - Builds → the builds table, one row each, status draft/published
 
    WHAT IT DOES
      1. Imports Gearsets.csv / Brandsets.csv / "Gear: Named + Exotics".csv
@@ -22,8 +24,8 @@
      2. Lets you hand-edit that database (add/edit/delete sets & named items)
         with no code required — forms only.
      3. Lets you define a build via dropdowns sourced from that database,
-        preview it exactly as it will render on the live Builds page, then
-        publish it as a ready-to-paste JS object for division2-builds.html.
+        preview it with the same renderer the live Builds page uses
+        (build-card.js), save it as a draft, and publish it to the site.
 
    CSV IMPORT QUIRK — why there's a review step
      The source Google Sheet uses vertically-merged cells for item names.
@@ -126,8 +128,8 @@
   .preview-frame { border: 1px solid var(--line-bright); background: var(--bg); padding: 4px; }
   .preview-empty { padding: 60px 20px; text-align: center; color: var(--muted); font-size: .78rem; }
 
-  .export-box { margin-top: 14px; }
-  .export-box textarea { width: 100%; min-height: 220px; background: #0a0a0a; color: #9fdc9f; font-family: var(--mono, monospace); font-size: .68rem; padding: 12px; border: 1px solid var(--line-bright); }
+  .saved-builds { margin-bottom: 22px; }
+  .saved-builds input[type="number"] { background: var(--panel-2); color: var(--text); border: 1px solid var(--line-bright); font-family: var(--mono); font-size: .72rem; padding: 4px 6px; }
 
   /* ── card preview (mirrors division2-builds.html exactly) ── */
   :root {
@@ -201,16 +203,16 @@
         <div class="sub">Internal Tool · Not a Field Reference Page</div>
       </div>
     </div>
-    <div class="status">AGENT LVL 40<br>MODE: <b>AUTHORING</b></div>
+    <div class="status">MODE: <b>AUTHORING</b><br>DB: <b id="sync-status">CONNECTING…</b></div>
   </header>
 
   <nav class="topnav" aria-label="Section">
-    <a href="index.html">Home</a>
-    <a href="division2-talent-lookup.html">Talents</a>
-    <a href="division2-weapons.html">Weapons</a>
-    <a href="division2-gear.html">Gear</a>
-    <a href="division2-attributes.html">Attributes</a>
-    <a href="division2-builds.html">Builds</a>
+    <a href="../index.html">Home</a>
+    <a href="../division2-talent-lookup.html">Talents</a>
+    <a href="../division2-weapons.html">Weapons</a>
+    <a href="../division2-gear.html">Gear</a>
+    <a href="../division2-attributes.html">Attributes</a>
+    <a href="../division2-builds.html">Builds</a>
   </nav>
 
   <div class="tabbar" role="tablist">
@@ -273,6 +275,12 @@
       </div>
     </div>
 
+    <div class="saved-builds">
+      <div class="form-section-title" style="margin-bottom:8px">Saved Builds</div>
+      <div class="db-count" id="saved-builds-count">Loading…</div>
+      <table class="dbtable"><thead><tr><th>Order</th><th>Name</th><th>Category</th><th>Status</th><th>Updated</th><th></th></tr></thead><tbody id="saved-builds-body"></tbody></table>
+    </div>
+
     <div class="creator-grid">
       <div class="creator-form" id="creator-form"><!-- populated by JS --></div>
 
@@ -282,16 +290,11 @@
           <div id="preview-mount" class="preview-empty">Fill in the form to see the build card here.</div>
         </div>
         <div class="btnrow" style="margin-top:12px">
-          <button class="btn primary" id="publish-btn">Publish → Generate Snippet</button>
+          <button class="btn" id="save-build-btn">Save</button>
+          <button class="btn primary" id="publish-btn">Publish</button>
+          <button class="btn" id="unpublish-btn">Unpublish</button>
         </div>
-        <div class="export-box" id="export-box" style="display:none">
-          <div class="form-section-title" style="margin-bottom:8px">Paste into the <code>BUILDS</code> array in division2-builds.html</div>
-          <textarea id="export-text" readonly></textarea>
-          <div class="btnrow" style="margin-top:8px">
-            <button class="btn" id="copy-export">Copy to Clipboard</button>
-            <button class="btn" id="download-export">Download .js Snippet</button>
-          </div>
-        </div>
+        <div class="db-count" id="build-status" style="margin-top:8px">New build · not saved yet</div>
       </div>
     </div>
   </div>
@@ -300,9 +303,10 @@
   <div class="tabpanel" id="tab-backup">
     <div class="panel-title" style="margin-bottom:14px">Database Backup</div>
     <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:640px">
-      Everything you import or edit here lives in this browser's local storage — it is not saved to a file on its own.
-      Export a backup after any import or editing session, and keep it somewhere safe. Restoring replaces the entire
-      working database with the contents of the backup file.
+      Everything you import or edit here is saved to the server automatically, and every change keeps the previous
+      version in the database's history. Export a full backup (all datasets and builds) now and then and commit it to
+      the repo's <code>website/snapshot/</code> folder. Restore accepts either that export or an old local-storage
+      backup file from before the migration; it replaces the gear / brand / named databases (builds are not touched).
     </p>
     <div class="btnrow" style="margin-top:14px">
       <button class="btn primary" id="export-backup">Export Full Backup (.json)</button>
@@ -358,30 +362,98 @@
   </div>
 
   <footer>
-    <b>Read me:</b> this tool authors builds for the SHD Field Toolkit's Builds page. It does not modify any of the
-    live site pages directly — "Publish" generates a JS object for you to paste into <code>division2-builds.html</code>
-    by hand, keeping the verify-before-ship workflow intact. The gear/brand/named database lives only in this
-    browser's local storage; use the Backup tab regularly.
+    <b>Read me:</b> this tool authors builds for the SHD Field Toolkit's Builds page. "Save" keeps a build private
+    as a draft; only "Publish" puts it on the live Builds page (within about 30 seconds), so verify a build before
+    publishing. "Unpublish" takes it back off. Every save keeps the previous version in the database history.
   </footer>
 </div>
 
+<script src="../data.js"></script>
+<script src="../build-card.js"></script>
 <script>
 "use strict";
 
 /* ============================================================================
    1. STORAGE LAYER
    ============================================================================ */
-const DB_KEY = "shd_build_creator_db_v1";
-function loadDB() {
+// All reads/writes go to the admin API, which is only reachable through
+// Cloudflare Access. Writes carry the version we last saw (expectedVersion);
+// the server answers 409 if someone/somewhere saved in between, so two tabs
+// can never silently overwrite each other. expectedVersion 0 = "create new".
+const API_BASE = "/api/admin";
+async function api(method, path, body) {
+  let r;
   try {
-    const raw = localStorage.getItem(DB_KEY);
-    if (!raw) return { gearsets: [], brandsets: [], named: [] };
-    const parsed = JSON.parse(raw);
-    return { gearsets: parsed.gearsets || [], brandsets: parsed.brandsets || [], named: parsed.named || [] };
-  } catch (e) { console.error("DB load failed", e); return { gearsets: [], brandsets: [], named: [] }; }
+    r = await fetch(API_BASE + path, {
+      method, cache: "no-store", credentials: "same-origin",
+      headers: body ? { "Content-Type": "application/json" } : {},
+      body: body ? JSON.stringify(body) : undefined
+    });
+  } catch (e) {
+    const err = new Error("Couldn't reach the server. If you've been idle a while, reload the page to sign in again.");
+    err.status = 0; throw err;
+  }
+  let json = null;
+  try { json = await r.json(); } catch (e) { /* empty or non-JSON body */ }
+  if (!r.ok) {
+    const err = new Error((json && json.error) || ("HTTP " + r.status));
+    err.status = r.status; throw err;
+  }
+  return json;
 }
-function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(DB)); }
-let DB = loadDB();
+
+function setSync(text, state) {
+  const el = document.getElementById("sync-status");
+  el.textContent = text.toUpperCase();
+  el.style.color = state === "error" ? "var(--skip, #e0524a)" : state === "pending" ? "var(--amber)" : "";
+}
+
+const DB_KEYS = { gearsets: "ref-gearsets", brandsets: "ref-brandsets", named: "ref-named" };
+let DB = { gearsets: [], brandsets: [], named: [] };
+const DB_VERSION = { gearsets: 0, brandsets: 0, named: 0 };       // 0 = not in the database yet
+const DB_SAVED = { gearsets: "[]", brandsets: "[]", named: "[]" }; // last JSON confirmed saved
+
+async function loadDB() {
+  await Promise.all(Object.keys(DB_KEYS).map(async k => {
+    try {
+      const r = await api("GET", "/datasets/" + DB_KEYS[k]);
+      DB[k] = Array.isArray(r.data) ? r.data : [];
+      DB_VERSION[k] = r.version;
+    } catch (e) {
+      if (e.status !== 404) throw e;
+      DB[k] = []; DB_VERSION[k] = 0;
+    }
+    DB_SAVED[k] = JSON.stringify(DB[k]);
+  }));
+}
+
+// Called after every edit. Debounced, then saves only the datasets that changed.
+let saveTimer = null, saveChain = Promise.resolve();
+function dbDirty() { return Object.keys(DB_KEYS).some(k => JSON.stringify(DB[k]) !== DB_SAVED[k]); }
+function saveDB() {
+  setSync("Unsaved changes", "pending");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveChain = saveChain.then(flushDB); }, 400);
+}
+async function flushDB() {
+  for (const k of Object.keys(DB_KEYS)) {
+    const json = JSON.stringify(DB[k]);
+    if (json === DB_SAVED[k]) continue;
+    try {
+      setSync("Saving…", "pending");
+      const r = await api("PUT", "/datasets/" + DB_KEYS[k], { data: DB[k], expectedVersion: DB_VERSION[k], published: false });
+      DB_VERSION[k] = r.version; DB_SAVED[k] = json;
+    } catch (e) {
+      setSync("Save failed", "error");
+      alert(e.status === 409
+        ? `The ${k} database was changed somewhere else (another tab or device). Reload this page to pick up those changes — your last edit here was NOT saved.`
+        : `Couldn't save ${k}: ${e.message}`);
+      return;
+    }
+  }
+  setSync("All changes saved", "ok");
+}
+window.addEventListener("beforeunload", e => { if (dbDirty() || buildDirty()) { e.preventDefault(); e.returnValue = ""; } });
 let nextId = 1;
 function newId(prefix) { return prefix + "_" + (Date.now().toString(36)) + "_" + (nextId++); }
 
@@ -591,7 +663,7 @@ function readFile(e, cb) {
 /* ============================================================================
    5. DB TABLE RENDERING + MANUAL EDIT FORMS
    ============================================================================ */
-function esc(s) { return String(s == null ? "" : s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+const esc = SHD.esc;
 
 function renderAllTables() {
   renderGearsetsTable();
@@ -765,26 +837,33 @@ function renderBackupSummary() {
   document.getElementById("backup-summary").textContent =
     `Working database: ${DB.gearsets.length} gear sets · ${DB.brandsets.length} brand sets · ${DB.named.length} named items.`;
 }
-document.getElementById("export-backup").onclick = () => {
-  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `shd-build-creator-backup-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
+document.getElementById("export-backup").onclick = async () => {
+  try {
+    const full = await api("GET", "/export");
+    const blob = new Blob([JSON.stringify(full, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `shd-full-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+  } catch (e) { alert("Export failed: " + e.message); }
 };
 document.getElementById("restore-backup").addEventListener("change", e => {
   readFile(e, txt => {
     try {
       const parsed = JSON.parse(txt);
-      if (!confirm("This replaces your entire working database with the backup file. Continue?")) return;
-      DB = { gearsets: parsed.gearsets || [], brandsets: parsed.brandsets || [], named: parsed.named || [] };
+      // Accept a full server export ({ datasets: { "ref-gearsets": { data } … } })
+      // or an old pre-migration local-storage backup ({ gearsets, brandsets, named }).
+      const fromExport = k => parsed.datasets && parsed.datasets[DB_KEYS[k]] && parsed.datasets[DB_KEYS[k]].data;
+      const pick = k => fromExport(k) || parsed[k] || [];
+      if (!confirm("This replaces the gear set, brand set and named item databases with the backup file (builds are not touched). Continue?")) return;
+      DB = { gearsets: pick("gearsets"), brandsets: pick("brandsets"), named: pick("named") };
       saveDB(); renderAllTables();
       alert("Restored.");
     } catch (err) { alert("Couldn't read that file as JSON backup: " + err.message); }
   });
 });
 document.getElementById("wipe-db").onclick = () => {
-  if (!confirm("Wipe the entire working database? This can't be undone — export a backup first if unsure.")) return;
+  if (!confirm("Wipe the gear set, brand set and named item databases? Previous versions stay in the server history, but export a backup first if unsure.")) return;
   DB = { gearsets: [], brandsets: [], named: [] };
   saveDB(); renderAllTables();
 };
@@ -1012,15 +1091,16 @@ function syncFormToModel() {
 document.getElementById("creator-clear").onclick = () => {
   if (!confirm("Clear the current build form?")) return;
   cb = freshBuild();
-  buildCreatorForm(); renderPreview();
-  document.getElementById("export-box").style.display = "none";
+  buildCreatorForm(); renderPreview(); showBuildStatus();
 };
 
 /* ---- Import Build: paste a JS build-object snippet and load it into the form ----
    Uses Function(...) rather than JSON.parse because the pasted text is a JS object
    literal (unquoted keys, apostrophes in strings) exactly as it appears in
    division2-builds.html — not strict JSON. This is safe here because the only
-   person who ever pastes into this tool is the person running it locally. */
+   person who can open this tool is the admin signed in through Cloudflare Access.
+   An imported build is treated as NEW: saving it fails with a clear message if a
+   build with the same id already exists — load that one from Saved Builds instead. */
 document.getElementById("creator-import").onclick = () => {
   document.getElementById("import-build-text").value = "";
   document.getElementById("import-build-picker").innerHTML = "";
@@ -1067,8 +1147,11 @@ function findNamedItemNameFor(code, src) {
   return m ? m.name : "";
 }
 
-function loadBuildIntoCreator(b) {
+function loadBuildIntoCreator(b, meta) {
   const fresh = freshBuild();
+  fresh._orig = b;                                   // see cbToBuild(): carries fields the form doesn't edit
+  fresh._version = meta ? meta.version : 0;          // 0 = new (e.g. pasted via Import Build)
+  fresh._status = meta ? meta.status : "draft";
   fresh.id = b.id || ""; fresh.cat = b.cat || "dps"; fresh.name = b.name || "";
   fresh.subtitle = b.subtitle || ""; fresh.diff = b.diff || "easy"; fresh.spec = b.spec || "";
   fresh.warn = b.warn || ""; fresh.playstyle = b.playstyle || "";
@@ -1096,7 +1179,7 @@ function loadBuildIntoCreator(b) {
   document.querySelector('.tabbtn[data-tab="creator"]').click();
   buildCreatorForm();
   renderPreview();
-  document.getElementById("export-box").style.display = "none";
+  showBuildStatus();
 }
 
 document.getElementById("import-build-parse").onclick = () => {
@@ -1114,134 +1197,154 @@ document.getElementById("import-build-parse").onclick = () => {
   });
 };
 
-/* ---- Preview: mirrors renderBuilds() from division2-builds.html exactly ---- */
-function logoImgHTML(logoKey, alt, isExotic, isFlex) {
-  const wrapClass = ["logo-wrap", isExotic ? "exotic-wrap" : "", isFlex ? "flex-wrap" : ""].filter(Boolean).join(" ");
-  if (!logoKey) return `<div class="${wrapClass}"><span class="logo-placeholder">?</span></div>`;
-  const src = `logos/${logoKey}.png`;
-  const initial = (alt || "?")[0].toUpperCase();
-  return `<div class="${wrapClass}">
-    <img src="${src}" alt="${esc(alt)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-    <span class="logo-placeholder" style="display:none">${initial}</span>
-  </div>`;
+/* ---- Form model → build object (the shape stored in the builds table) ----
+   The form only edits some of a build's fields. When a build was loaded from
+   the server (or pasted), cb._orig holds the original object, and anything the
+   form can't edit is carried across unchanged:
+     - a slot's flexNote on a non-flex slot, and its warnTalent flag, as long as
+       that slot still holds the same set (and talent, for warnTalent)
+     - stats rows with labels other than Weapons / Skills / Exotic / Cores / Attribs
+   so re-saving an existing build never silently drops data. */
+function slugId(name) { return String(name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""); }
+const LEFT_LABELS = ["Weapons", "Skills", "Exotic"], RIGHT_LABELS = ["Cores", "Attribs"];
+function cbToBuild(c) {
+  const orig = c._orig || null;
+  const b = { id: c.id || slugId(c.name), cat: c.cat, name: c.name, subtitle: c.subtitle, diff: c.diff };
+  if (c.spec) b.spec = c.spec;
+  b.slots = c.slots.map(s => {
+    if (s.mode === "flex") return { slot: s.slot, set: "Flex brand", logo: null, flex: true, flexNote: s.flexNote || "" };
+    const o = { slot: s.slot, set: s.set, logo: s.logo || null };
+    if (s.talent) o.talent = s.talent;
+    if (s.exotic) o.exotic = true;
+    const os = orig && (orig.slots || []).find(x => x.slot === s.slot);
+    if (os && !os.flex && os.set === s.set) {
+      if (os.flexNote) o.flexNote = os.flexNote;
+      if (os.warnTalent && os.talent === s.talent) o.warnTalent = true;
+    }
+    return o;
+  });
+  b.statsLeft = [];
+  if (c.weapons) b.statsLeft.push({ l: "Weapons", v: c.weapons });
+  if (c.skills) b.statsLeft.push({ l: "Skills", v: c.skills });
+  if (c.exoticNote) b.statsLeft.push(c.exoticOpt ? { l: "Exotic", v: c.exoticNote, opt: c.exoticOpt } : { l: "Exotic", v: c.exoticNote });
+  b.statsRight = [];
+  if (c.cores) b.statsRight.push({ l: "Cores", v: c.cores });
+  if (c.attribs) b.statsRight.push({ l: "Attribs", v: c.attribs });
+  if (orig) {
+    (orig.statsLeft || []).filter(r => !LEFT_LABELS.includes(r.l)).forEach(r => b.statsLeft.push(r));
+    (orig.statsRight || []).filter(r => !RIGHT_LABELS.includes(r.l)).forEach(r => b.statsRight.push(r));
+  }
+  if (c.warn) b.warn = c.warn;
+  b.playstyle = c.playstyle;
+  return b;
 }
+
+/* ---- Preview: the SAME renderer as the public Builds page (build-card.js) ---- */
 function renderPreview() {
   const mount = document.getElementById("preview-mount");
   if (!cb.name && !cb.subtitle) { mount.className = "preview-empty"; mount.innerHTML = "Fill in the form to see the build card here."; return; }
   mount.className = ""; mount.innerHTML = "";
-
-  const card = document.createElement("div");
-  card.className = "build-card"; card.dataset.cat = cb.cat;
-
-  const specHtml = cb.spec ? `<div class="spec-badge">${esc(cb.spec)}</div>` : "";
-  card.innerHTML += `
-    <div class="card-head">
-      <div class="head-left">
-        <div class="head-badges">
-          <span class="cat-badge ${cb.cat}">${cb.cat.toUpperCase()}</span>
-          <span class="diff-badge ${cb.diff}">${cb.diff[0].toUpperCase()+cb.diff.slice(1)}</span>
-        </div>
-        <div class="build-name">${esc(cb.name) || "(untitled build)"}</div>
-        <div class="build-subtitle">${esc(cb.subtitle)}</div>
-        ${specHtml}
-      </div>
-    </div>`;
-
-  const slotCells = cb.slots.map(s => {
-    const isFlex = s.mode === "flex";
-    const setLabel = isFlex ? "Flex brand" : (s.set || "—");
-    const talentHtml = !isFlex && s.talent ? `<div class="slot-talent">${esc(s.talent)}</div>` : "";
-    const nameClass = !isFlex && s.exotic ? "exotic-name" : isFlex ? "flex-name" : "";
-    const subName = isFlex && s.flexNote ? `<br><span style="font-size:.57rem;color:var(--muted)">${esc(s.flexNote)}</span>` : "";
-    return `<div class="slot-cell">
-      <div class="slot-label">${s.slot}</div>
-      ${logoImgHTML(isFlex ? null : s.logo, setLabel, !isFlex && s.exotic, isFlex)}
-      <div class="slot-set-name ${nameClass}">${esc(setLabel)}${subName}</div>
-      ${talentHtml}
-    </div>`;
-  }).join("");
-  card.innerHTML += `<div class="gear-strip">${slotCells}</div>`;
-
-  const leftRows = [
-    cb.weapons && { l: "Weapons", v: cb.weapons },
-    cb.skills && { l: "Skills", v: cb.skills },
-    cb.exoticNote && { l: "Exotic", v: cb.exoticNote, opt: cb.exoticOpt }
-  ].filter(Boolean).map(s => `<div class="stat-row"><span class="stat-label">${s.l}</span><span class="stat-val">${esc(s.v).replace(/\n/g,"<br>")}${s.opt ? `<br><span class="muted">${esc(s.opt)}</span>` : ""}</span></div>`).join("");
-  const rightRows = [
-    cb.cores && { l: "Cores", v: cb.cores },
-    cb.attribs && { l: "Attribs", v: cb.attribs }
-  ].filter(Boolean).map(s => `<div class="stat-row"><span class="stat-label">${s.l}</span><span class="stat-val">${esc(s.v).replace(/\n/g,"<br>")}</span></div>`).join("");
-  card.innerHTML += `<div class="card-stats"><div class="stat-col">${leftRows}</div><div class="stat-col">${rightRows}</div></div>`;
-
-  if (cb.warn) card.innerHTML += `<div class="warn-banner">${esc(cb.warn)}</div>`;
-  card.innerHTML += `<div class="card-playstyle"><div class="ps-label">Playstyle</div><p class="ps-text">${esc(cb.playstyle)}</p></div>`;
-
-  mount.appendChild(card);
+  const b = cbToBuild(cb);
+  if (!b.name) b.name = "(untitled build)";
+  b.slots = b.slots.map(s => s.set ? s : Object.assign({}, s, { set: "—" }));
+  mount.appendChild(SHDBuildCard.render(b, { logoBase: "../logos/" }));
 }
 
-/* ---- Publish: emit a JS object literal matching the BUILDS schema ---- */
-function jsStr(s) { return "\"" + String(s || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n") + "\""; }
-document.getElementById("publish-btn").onclick = () => {
+/* ---- Saved builds (server) ---- */
+let BUILD_ROWS = [];        // [{ id, category, status, sort_order, version, updated_at, data }]
+let cbSavedJSON = null;     // JSON of cbToBuild(cb) at last save/load, for the unsaved-changes warning
+function buildDirty() { return !!cb.name && JSON.stringify(cbToBuild(cb)) !== cbSavedJSON; }
+
+const STATUS_STYLE = { published: "color:var(--ok)", draft: "color:var(--amber)", archived: "color:var(--muted)" };
+async function loadBuildList() {
+  const count = document.getElementById("saved-builds-count");
+  try { BUILD_ROWS = await api("GET", "/builds"); }
+  catch (e) { count.textContent = "Couldn't load saved builds: " + e.message; return; }
+  BUILD_ROWS.sort((x, y) => x.sort_order - y.sort_order || String(x.data.name).localeCompare(y.data.name));
+  const pub = BUILD_ROWS.filter(r => r.status === "published").length;
+  count.textContent = `${BUILD_ROWS.length} builds · ${pub} published · lower Order shows first on the Builds page`;
+  document.getElementById("saved-builds-body").innerHTML = BUILD_ROWS.map(r => `
+    <tr>
+      <td><input type="number" step="10" value="${esc(r.sort_order)}" data-order="${esc(r.id)}" style="width:64px"></td>
+      <td><b>${esc(r.data.name)}</b><br><span style="color:var(--muted)">${esc(r.id)}</span></td>
+      <td>${esc(String(r.category).toUpperCase())}</td>
+      <td style="${STATUS_STYLE[r.status] || ""}">${esc(r.status)}</td>
+      <td>${esc(new Date(r.updated_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }))} · v${esc(r.version)}</td>
+      <td><button class="btn" data-load="${esc(r.id)}">Load</button></td>
+    </tr>`).join("");
+  document.querySelectorAll("[data-load]").forEach(btn => btn.onclick = () => {
+    if (buildDirty() && !confirm("Discard unsaved changes to the current build?")) return;
+    const r = BUILD_ROWS.find(x => x.id === btn.dataset.load);
+    loadBuildIntoCreator(r.data, r);
+    cbSavedJSON = JSON.stringify(cbToBuild(cb));
+    showBuildStatus();
+  });
+  document.querySelectorAll("[data-order]").forEach(inp => inp.onchange = async () => {
+    const r = BUILD_ROWS.find(x => x.id === inp.dataset.order);
+    const n = parseInt(inp.value, 10);
+    if (!Number.isFinite(n)) { inp.value = r.sort_order; return; }
+    try {
+      const res = await api("PUT", "/builds/" + encodeURIComponent(r.id),
+        { data: r.data, category: r.category, status: r.status, sort_order: n, expectedVersion: r.version });
+      if (cb.id === r.id) cb._version = res.version;
+      await loadBuildList();
+    } catch (e) { alert(e.status === 409 ? "That build changed elsewhere — reloading the list." : "Couldn't save order: " + e.message); loadBuildList(); }
+  });
+}
+
+function showBuildStatus(msg) {
+  const el = document.getElementById("build-status");
+  if (msg) { el.textContent = msg; return; }
+  if (!cb._version) { el.textContent = "New build · not saved yet"; return; }
+  el.textContent = `${cb.id} · v${cb._version} · ${cb._status === "published" ? "PUBLISHED (live on Builds page)" : cb._status}`;
+}
+
+async function saveBuild(status) {
   if (!cb.name) { alert("Give the build a name first."); return; }
-  const id = cb.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-  const slotsJS = cb.slots.map(s => {
-    if (s.mode === "flex") {
-      return `      { slot:"${s.slot}", set:"Flex brand", logo:null, flex:true, flexNote:${jsStr(s.flexNote)} },`;
-    }
-    const parts = [`slot:"${s.slot}"`, `set:${jsStr(s.set)}`, `logo:${s.logo ? jsStr(s.logo) : "null"}`];
-    if (s.talent) parts.push(`talent:${jsStr(s.talent)}`);
-    if (s.exotic) parts.push(`exotic:true`);
-    return `      { ${parts.join(", ")} },`;
-  }).join("\n");
-
-  const statsLeft = [];
-  if (cb.weapons) statsLeft.push(`      { l:"Weapons", v:${jsStr(cb.weapons)} },`);
-  if (cb.skills) statsLeft.push(`      { l:"Skills", v:${jsStr(cb.skills)} },`);
-  if (cb.exoticNote) statsLeft.push(`      { l:"Exotic", v:${jsStr(cb.exoticNote)}${cb.exoticOpt ? `, opt:${jsStr(cb.exoticOpt)}` : ""} },`);
-
-  const statsRight = [];
-  if (cb.cores) statsRight.push(`      { l:"Cores", v:${jsStr(cb.cores)} },`);
-  if (cb.attribs) statsRight.push(`      { l:"Attribs", v:${jsStr(cb.attribs)} },`);
-
-  const out = `  {
-    id: ${jsStr(id)},
-    cat: ${jsStr(cb.cat)},
-    name: ${jsStr(cb.name)},
-    subtitle: ${jsStr(cb.subtitle)},
-    diff: ${jsStr(cb.diff)},${cb.spec ? `\n    spec: ${jsStr(cb.spec)},` : ""}
-    slots: [
-${slotsJS}
-    ],
-    statsLeft: [
-${statsLeft.join("\n")}
-    ],
-    statsRight: [
-${statsRight.join("\n")}
-    ],${cb.warn ? `\n    warn: ${jsStr(cb.warn)},` : ""}
-    playstyle: ${jsStr(cb.playstyle)}
-  },`;
-
-  document.getElementById("export-text").value = out;
-  document.getElementById("export-box").style.display = "block";
-};
-document.getElementById("copy-export").onclick = () => {
-  const ta = document.getElementById("export-text");
-  ta.select(); document.execCommand("copy");
-  alert("Copied.");
-};
-document.getElementById("download-export").onclick = () => {
-  const text = document.getElementById("export-text").value;
-  const blob = new Blob([text], { type: "text/javascript" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `build-${(cb.name||"untitled").toLowerCase().replace(/[^a-z0-9]+/g,"-")}.js`;
-  a.click();
+  const b = cbToBuild(cb);
+  if (!b.id) { alert("The build name needs at least one letter or number."); return; }
+  if (status === "published" && !confirm(`Publish "${b.name}" to the live Builds page?`)) return;
+  const row = BUILD_ROWS.find(r => r.id === b.id);
+  const sortOrder = row ? row.sort_order : (BUILD_ROWS.reduce((m, r) => Math.max(m, r.sort_order), 0) + 10);
+  showBuildStatus("Saving…");
+  try {
+    const res = await api("PUT", "/builds/" + encodeURIComponent(b.id),
+      { data: b, category: b.cat, status, sort_order: sortOrder, expectedVersion: cb._version || 0 });
+    cb.id = b.id; cb._version = res.version; cb._status = status; cb._orig = b;
+    cbSavedJSON = JSON.stringify(cbToBuild(cb));
+    showBuildStatus();
+    await loadBuildList();
+  } catch (e) {
+    showBuildStatus();
+    if (e.status === 409) {
+      alert(cb._version
+        ? "This build was changed somewhere else since you loaded it. Load it again from Saved Builds, re-apply your edit, then save."
+        : `A build with the id "${b.id}" already exists. Load it from Saved Builds to edit it, or give this one a different name.`);
+    } else alert("Couldn't save: " + e.message);
+  }
+}
+document.getElementById("save-build-btn").onclick = () => saveBuild(cb._status || "draft");
+document.getElementById("publish-btn").onclick = () => saveBuild("published");
+document.getElementById("unpublish-btn").onclick = () => {
+  if (!cb._version) { alert("This build hasn't been saved yet."); return; }
+  saveBuild("draft");
 };
 
 /* ============================================================================
    9. INIT
    ============================================================================ */
-buildCreatorForm();
-renderAllTables();
-renderPreview();
+(async function init() {
+  buildCreatorForm();
+  renderPreview();
+  try {
+    await loadDB();
+    setSync("All changes saved", "ok");
+  } catch (e) {
+    setSync("Offline", "error");
+    alert("Couldn't load the database: " + e.message + "\n\nNothing will be saved until you reload successfully.");
+    saveDB = () => setSync("Offline — not saved", "error");
+  }
+  renderAllTables();
+  loadBuildList();
+})();
 </script>
