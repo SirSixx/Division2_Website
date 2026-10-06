@@ -1,0 +1,1247 @@
+<!-- SHD Field Toolkit — Build Creator (internal tool, not a public reference page) -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build Creator · SHD Field Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ============================================================================
+   MAINTENANCE NOTE — read before editing
+   ----------------------------------------------------------------------------
+   This is an AUTHORING TOOL, not a public reference page. It intentionally
+   breaks the toolkit's "no localStorage" rule (see design.md) because its
+   whole job is to hold an editable working database between visits. Every
+   other page in the toolkit stays read-only / session-only — this is the
+   one deliberate exception.
+
+   WHAT IT DOES
+     1. Imports Gearsets.csv / Brandsets.csv / "Gear: Named + Exotics".csv
+        (exports of the community Google Sheet) into a local database.
+     2. Lets you hand-edit that database (add/edit/delete sets & named items)
+        with no code required — forms only.
+     3. Lets you define a build via dropdowns sourced from that database,
+        preview it exactly as it will render on the live Builds page, then
+        publish it as a ready-to-paste JS object for division2-builds.html.
+
+   CSV IMPORT QUIRK — why there's a review step
+     The source Google Sheet uses vertically-merged cells for item names.
+     Exported to CSV, a merge becomes: one row with ALL the data but an
+     EMPTY name, immediately followed by a row with ONLY the name and
+     nothing else. The parser below pairs those automatically, but the
+     heuristic isn't bulletproof against every edge case in a hand-built
+     spreadsheet — hence every import ends on a review screen instead of
+     committing silently.
+
+   FUTURE (not built yet, by design — see chat): this database's shape
+   deliberately mirrors the DATA array structure already used in
+   division2-gear.html (n / t / pieces / named), so that a later "push to
+   Gear page" export is a straightforward mapping, not a rewrite.
+   ============================================================================ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* ── TABS ── */
+  .tabbar { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tabbtn {
+    font-family: var(--display); font-weight: 500; letter-spacing: .12em;
+    text-transform: uppercase; font-size: .68rem; color: var(--muted);
+    background: transparent; border: 1px solid var(--line-bright);
+    padding: 9px 16px; cursor: pointer; transition: .12s;
+  }
+  .tabbtn:hover { color: var(--text); }
+  .tabbtn[aria-selected="true"] { color: var(--bg); background: var(--amber); border-color: var(--amber); font-weight: 600; }
+  .tabpanel { display: none; }
+  .tabpanel.active { display: block; }
+
+  .panel-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .panel-title { font-family: var(--display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 1.05rem; }
+  .btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  button.btn, label.btn {
+    font-family: var(--display); font-weight: 500; letter-spacing: .1em;
+    text-transform: uppercase; font-size: .64rem; color: var(--text);
+    background: var(--panel-2); border: 1px solid var(--line-bright);
+    padding: 8px 13px; cursor: pointer; transition: .12s; display: inline-flex;
+    align-items: center; gap: 6px;
+  }
+  button.btn:hover, label.btn:hover { border-color: var(--amber); color: var(--amber); }
+  button.btn.primary { background: var(--amber); color: var(--bg); border-color: var(--amber); font-weight: 600; }
+  button.btn.primary:hover { color: var(--bg); opacity: .9; }
+  button.btn.danger:hover { border-color: var(--hard, #e05252); color: var(--hard, #e05252); }
+  button.btn:disabled { opacity: .4; cursor: not-allowed; }
+  input[type=file] { display: none; }
+
+  /* ── DB TABLE ── */
+  .search { width: 100%; padding: 9px 12px; margin-bottom: 10px; background: var(--panel-2); border: 1px solid var(--line-bright); color: var(--text); font-size: .8rem; }
+  table.dbtable { width: 100%; border-collapse: collapse; font-size: .76rem; }
+  table.dbtable th { text-align: left; font-family: var(--display); letter-spacing: .1em; text-transform: uppercase; font-size: .6rem; color: var(--amber); padding: 8px 10px; border-bottom: 1px solid var(--line-bright); }
+  table.dbtable td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.dbtable tr:hover td { background: var(--panel-2); cursor: pointer; }
+  .db-count { font-size: .64rem; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+  .tag { display: inline-block; font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--line-bright); color: var(--muted); }
+  .tag.exotic { color: var(--exotic-color, #e8c84a); border-color: var(--exotic-color, #e8c84a); }
+
+  /* ── MODAL (edit form / review) ── */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 50; display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 30px 16px; }
+  .modal-backdrop.hidden { display: none; }
+  .modal { background: var(--panel); border: 1px solid var(--line-bright); max-width: 760px; width: 100%; padding: 22px 24px; }
+  .modal h2 { font-family: var(--display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 1rem; margin: 0 0 16px; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-family: var(--display); font-weight: 500; letter-spacing: .1em; text-transform: uppercase; font-size: .6rem; color: var(--amber); margin-bottom: 5px; }
+  .field input[type=text], .field input[type=number], .field select, .field textarea {
+    width: 100%; padding: 8px 10px; background: var(--panel-2); border: 1px solid var(--line-bright);
+    color: var(--text); font-size: .78rem; font-family: inherit;
+  }
+  .field textarea { resize: vertical; min-height: 54px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field-check { display: flex; align-items: center; gap: 7px; font-size: .74rem; color: var(--text); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+
+  /* ── REVIEW LIST ── */
+  .review-list { max-height: 55vh; overflow-y: auto; border: 1px solid var(--line); margin-bottom: 14px; }
+  .review-row { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: .74rem; }
+  .review-row.flagged { background: rgba(224,82,82,.06); }
+  .review-row input[type=checkbox] { margin-top: 3px; flex-shrink: 0; }
+  .review-fields { flex: 1; line-height: 1.55; }
+  .review-fields b { color: var(--amber); }
+  .review-flag-note { color: var(--hard, #e05252); font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; }
+
+  /* ── BUILD CREATOR ── */
+  .creator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 980px) { .creator-grid { grid-template-columns: 1fr; } }
+  .creator-form { background: var(--panel); border: 1px solid var(--line); padding: 18px 20px; }
+  .form-section { margin-bottom: 20px; }
+  .form-section:last-child { margin-bottom: 0; }
+  .form-section-title { font-family: var(--display); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; font-size: .68rem; color: var(--amber); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px dashed var(--line-bright); }
+
+  .slot-editor { border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 8px; }
+  .slot-editor-head { font-family: var(--display); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; font-size: .62rem; color: var(--text); margin-bottom: 8px; }
+  .slot-mode-row { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  .slot-mode-row button { flex: 1 1 30%; min-width: 72px; font-size: .58rem; padding: 6px 4px; }
+  .slot-mode-row button[aria-pressed="true"] { background: var(--amber); color: var(--bg); border-color: var(--amber); }
+
+  .preview-sticky { position: sticky; top: 12px; }
+  .preview-frame { border: 1px solid var(--line-bright); background: var(--bg); padding: 4px; }
+  .preview-empty { padding: 60px 20px; text-align: center; color: var(--muted); font-size: .78rem; }
+
+  .export-box { margin-top: 14px; }
+  .export-box textarea { width: 100%; min-height: 220px; background: #0a0a0a; color: #9fdc9f; font-family: var(--mono, monospace); font-size: .68rem; padding: 12px; border: 1px solid var(--line-bright); }
+
+  /* ── card preview (mirrors division2-builds.html exactly) ── */
+  :root {
+    --dps: #e05252; --dps-bg: rgba(224,82,82,.10); --dps-border: rgba(224,82,82,.35);
+    --skill: #ffb340; --skill-bg: rgba(255,179,64,.10); --skill-border: rgba(255,179,64,.35);
+    --tank: #4a9de0; --tank-bg: rgba(74,157,224,.10); --tank-border: rgba(74,157,224,.35);
+    --support: #9b7fe0; --support-bg: rgba(155,127,224,.10); --support-border: rgba(155,127,224,.35);
+    --easy: #54c06e; --medium: #ffb340; --hard: #e05252;
+    --exotic-color: #e8c84a; --exotic-bg: rgba(232,200,74,.10); --exotic-border: rgba(232,200,74,.40);
+  }
+  .build-card { background: var(--panel); border: 1px solid var(--line); position: relative; overflow: hidden; }
+  .build-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+  .build-card[data-cat="dps"]::before { background: var(--dps); }
+  .build-card[data-cat="skill"]::before { background: var(--skill); }
+  .build-card[data-cat="tank"]::before { background: var(--tank); }
+  .build-card[data-cat="support"]::before { background: var(--support); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 18px 13px 20px; border-bottom: 1px solid var(--line); }
+  .head-left { flex: 1; min-width: 0; }
+  .head-badges { display: flex; gap: 7px; align-items: center; margin-bottom: 7px; }
+  .cat-badge { font-family: var(--display); font-weight: 600; letter-spacing: .18em; text-transform: uppercase; font-size: .58rem; padding: 3px 8px; border: 1px solid; display: inline-block; }
+  .cat-badge.dps { color: var(--dps); background: var(--dps-bg); border-color: var(--dps); }
+  .cat-badge.skill { color: var(--skill); background: var(--skill-bg); border-color: var(--skill); }
+  .cat-badge.tank { color: var(--tank); background: var(--tank-bg); border-color: var(--tank); }
+  .cat-badge.support { color: var(--support); background: var(--support-bg); border-color: var(--support); }
+  .diff-badge { font-family: var(--display); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; font-size: .58rem; padding: 3px 9px; border: 1px solid; display: inline-flex; align-items: center; gap: 5px; }
+  .diff-badge::before { content: "●"; font-size: .45rem; }
+  .diff-badge.easy { color: var(--easy); border-color: var(--easy); background: rgba(84,192,110,.08); }
+  .diff-badge.medium { color: var(--medium); border-color: var(--medium); background: rgba(255,179,64,.08); }
+  .diff-badge.hard { color: var(--hard); border-color: var(--hard); background: rgba(224,82,82,.08); }
+  .build-name { font-family: var(--display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 1.22rem; margin: 0; line-height: 1.1; }
+  .build-subtitle { font-size: .68rem; letter-spacing: .08em; color: var(--muted); margin-top: 4px; }
+  .spec-badge { font-family: var(--display); font-weight: 500; letter-spacing: .12em; text-transform: uppercase; font-size: .58rem; padding: 3px 8px; border: 1px solid var(--amber-dim); color: var(--amber); background: rgba(255,140,26,.08); display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; }
+  .spec-badge::before { content: "SPEC"; font-size: .5rem; color: var(--amber-dim); margin-right: 3px; }
+  .gear-strip { display: grid; grid-template-columns: repeat(6, 1fr); border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .slot-cell { display: flex; flex-direction: column; align-items: center; padding: 12px 8px 11px; border-right: 1px solid var(--line); text-align: center; gap: 7px; min-width: 100px; }
+  .slot-cell:last-child { border-right: none; }
+  .slot-label { font-family: var(--display); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; font-size: .54rem; color: var(--muted); line-height: 1; }
+  .logo-wrap { width: 52px; height: 52px; flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-bright); background: var(--panel-2); overflow: hidden; }
+  .logo-wrap.exotic-wrap { border-color: var(--exotic-border); background: var(--exotic-bg); box-shadow: 0 0 12px rgba(232,200,74,.10); }
+  .logo-wrap.flex-wrap { border-style: dashed; border-color: var(--line-bright); opacity: .7; }
+  .logo-wrap img { width: 100%; height: 100%; object-fit: contain; filter: brightness(1.1) saturate(1.1); display: block; }
+  .logo-placeholder { font-family: var(--display); font-weight: 700; font-size: 1.1rem; color: var(--line-bright); letter-spacing: .05em; }
+  .slot-set-name { font-size: .62rem; line-height: 1.3; color: var(--text); max-width: 100%; word-break: break-word; }
+  .slot-set-name.exotic-name { color: var(--exotic-color); }
+  .slot-set-name.flex-name { color: var(--muted); font-style: italic; }
+  .slot-talent { font-size: .58rem; letter-spacing: .06em; color: var(--amber); line-height: 1.2; border-top: 1px dashed var(--line-bright); padding-top: 5px; width: 100%; font-family: var(--display); font-weight: 500; text-transform: uppercase; }
+  .slot-talent.warn-talent { color: var(--hard); }
+  .card-stats { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); padding: 0; }
+  .stat-col { padding: 12px 18px 12px 20px; }
+  .stat-col:first-child { border-right: 1px solid var(--line); }
+  .stat-row { display: grid; grid-template-columns: 80px 1fr; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--line); align-items: baseline; }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { font-family: var(--display); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; font-size: .56rem; color: var(--amber); flex-shrink: 0; }
+  .stat-val { font-size: .74rem; line-height: 1.5; color: var(--text); }
+  .stat-val .muted { color: var(--muted); font-size: .68rem; }
+  .warn-banner { padding: 9px 18px 9px 20px; background: rgba(224,82,82,.07); border-bottom: 1px solid rgba(224,82,82,.22); font-size: .72rem; line-height: 1.5; color: var(--hard); display: flex; gap: 8px; align-items: flex-start; }
+  .warn-banner::before { content: "⚠"; flex-shrink: 0; }
+  .card-playstyle { padding: 13px 18px 15px 20px; }
+  .ps-label { font-family: var(--display); font-weight: 500; letter-spacing: .16em; text-transform: uppercase; font-size: .56rem; color: var(--amber); margin-bottom: 7px; }
+  .ps-text { font-size: .76rem; line-height: 1.65; color: #cfd3d8; margin: 0; }
+
+  footer { margin-top: 40px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="sigil" aria-hidden="true"></div>
+      <div>
+        <h1>Build Creator</h1>
+        <div class="sub">Internal Tool · Not a Field Reference Page</div>
+      </div>
+    </div>
+    <div class="status">AGENT LVL 40<br>MODE: <b>AUTHORING</b></div>
+  </header>
+
+  <nav class="topnav" aria-label="Section">
+    <a href="index.html">Home</a>
+    <a href="division2-talent-lookup.html">Talents</a>
+    <a href="division2-weapons.html">Weapons</a>
+    <a href="division2-gear.html">Gear</a>
+    <a href="division2-attributes.html">Attributes</a>
+    <a href="division2-builds.html">Builds</a>
+  </nav>
+
+  <div class="tabbar" role="tablist">
+    <button class="tabbtn" data-tab="gearsets" aria-selected="true">Gear Sets</button>
+    <button class="tabbtn" data-tab="brandsets" aria-selected="false">Brand Sets</button>
+    <button class="tabbtn" data-tab="named" aria-selected="false">Named Items</button>
+    <button class="tabbtn" data-tab="creator" aria-selected="false">Build Creator</button>
+    <button class="tabbtn" data-tab="backup" aria-selected="false">Backup</button>
+  </div>
+
+  <!-- ============ GEAR SETS TAB ============ -->
+  <div class="tabpanel active" id="tab-gearsets">
+    <div class="panel-head">
+      <div class="panel-title">Gear Sets Database</div>
+      <div class="btnrow">
+        <label class="btn">Import Gearsets CSV <input type="file" accept=".csv" id="import-gearsets"></label>
+        <button class="btn primary" id="add-gearset">+ Add Set</button>
+      </div>
+    </div>
+    <input class="search" id="search-gearsets" placeholder="Search gear sets…">
+    <div class="db-count" id="count-gearsets"></div>
+    <table class="dbtable"><thead><tr><th>Name</th><th>Core</th><th>4pc Talent</th><th>Chest / Backpack</th></tr></thead><tbody id="body-gearsets"></tbody></table>
+  </div>
+
+  <!-- ============ BRAND SETS TAB ============ -->
+  <div class="tabpanel" id="tab-brandsets">
+    <div class="panel-head">
+      <div class="panel-title">Brand Sets Database</div>
+      <div class="btnrow">
+        <label class="btn">Import Brandsets CSV <input type="file" accept=".csv" id="import-brandsets"></label>
+        <button class="btn primary" id="add-brandset">+ Add Brand</button>
+      </div>
+    </div>
+    <input class="search" id="search-brandsets" placeholder="Search brand sets…">
+    <div class="db-count" id="count-brandsets"></div>
+    <table class="dbtable"><thead><tr><th>Name</th><th>Category</th><th>1pc</th><th>2pc</th><th>3pc</th></tr></thead><tbody id="body-brandsets"></tbody></table>
+  </div>
+
+  <!-- ============ NAMED ITEMS TAB ============ -->
+  <div class="tabpanel" id="tab-named">
+    <div class="panel-head">
+      <div class="panel-title">Named &amp; Exotic Items Database</div>
+      <div class="btnrow">
+        <label class="btn">Import Named/Exotics CSV <input type="file" accept=".csv" id="import-named"></label>
+        <button class="btn primary" id="add-named">+ Add Item</button>
+      </div>
+    </div>
+    <input class="search" id="search-named" placeholder="Search named items…">
+    <div class="db-count" id="count-named"></div>
+    <table class="dbtable"><thead><tr><th>Name</th><th>Slot</th><th>Brand / Set</th><th>Talent</th><th></th></tr></thead><tbody id="body-named"></tbody></table>
+  </div>
+
+  <!-- ============ BUILD CREATOR TAB ============ -->
+  <div class="tabpanel" id="tab-creator">
+    <div class="panel-head">
+      <div class="panel-title">Define a Build</div>
+      <div class="btnrow">
+        <button class="btn" id="creator-import">Import Build</button>
+        <button class="btn" id="creator-clear">Clear Form</button>
+      </div>
+    </div>
+
+    <div class="creator-grid">
+      <div class="creator-form" id="creator-form"><!-- populated by JS --></div>
+
+      <div class="preview-sticky">
+        <div class="form-section-title" style="margin-bottom:8px">Live Preview</div>
+        <div class="preview-frame">
+          <div id="preview-mount" class="preview-empty">Fill in the form to see the build card here.</div>
+        </div>
+        <div class="btnrow" style="margin-top:12px">
+          <button class="btn primary" id="publish-btn">Publish → Generate Snippet</button>
+        </div>
+        <div class="export-box" id="export-box" style="display:none">
+          <div class="form-section-title" style="margin-bottom:8px">Paste into the <code>BUILDS</code> array in division2-builds.html</div>
+          <textarea id="export-text" readonly></textarea>
+          <div class="btnrow" style="margin-top:8px">
+            <button class="btn" id="copy-export">Copy to Clipboard</button>
+            <button class="btn" id="download-export">Download .js Snippet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ BACKUP TAB ============ -->
+  <div class="tabpanel" id="tab-backup">
+    <div class="panel-title" style="margin-bottom:14px">Database Backup</div>
+    <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:640px">
+      Everything you import or edit here lives in this browser's local storage — it is not saved to a file on its own.
+      Export a backup after any import or editing session, and keep it somewhere safe. Restoring replaces the entire
+      working database with the contents of the backup file.
+    </p>
+    <div class="btnrow" style="margin-top:14px">
+      <button class="btn primary" id="export-backup">Export Full Backup (.json)</button>
+      <label class="btn">Restore from Backup <input type="file" accept=".json" id="restore-backup"></label>
+      <button class="btn danger" id="wipe-db">Wipe Database</button>
+    </div>
+    <div class="db-count" style="margin-top:16px" id="backup-summary"></div>
+  </div>
+
+  <!-- ============ IMPORT BUILD MODAL ============ -->
+  <div class="modal-backdrop hidden" id="import-build-modal">
+    <div class="modal" style="max-width:760px">
+      <h2>Import Build</h2>
+      <p style="font-size:.76rem;color:var(--muted);line-height:1.6;margin:-8px 0 14px">
+        Paste one build object, several comma-separated, or the whole <code>const BUILDS = [ … ]</code> array —
+        e.g. copied straight out of division2-builds.html. Slots get matched back to your database where possible
+        (by set name and exotic flag); anything that can't be matched is still loaded with its original text intact,
+        it just won't show as pre-selected in that slot's dropdown.
+      </p>
+      <div class="field"><textarea id="import-build-text" style="min-height:220px;font-family:var(--mono,monospace);font-size:.72rem" placeholder="{ id: &quot;striker&quot;, cat: &quot;dps&quot;, name: &quot;Striker: The Workhorse&quot;, ... }"></textarea></div>
+      <div id="import-build-picker"></div>
+      <div class="modal-actions">
+        <button class="btn" id="import-build-cancel">Cancel</button>
+        <button class="btn primary" id="import-build-parse">Parse</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ REVIEW MODAL ============ -->
+  <div class="modal-backdrop hidden" id="review-modal">
+    <div class="modal" style="max-width:820px">
+      <h2>Review Import</h2>
+      <div class="db-count" id="review-summary"></div>
+      <div class="review-list" id="review-list"></div>
+      <div class="modal-actions">
+        <button class="btn" id="review-cancel">Cancel</button>
+        <button class="btn primary" id="review-commit">Commit Selected</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ EDIT MODAL (generic form, built per-type) ============ -->
+  <div class="modal-backdrop hidden" id="edit-modal">
+    <div class="modal">
+      <h2 id="edit-modal-title">Edit</h2>
+      <div id="edit-modal-body"></div>
+      <div class="modal-actions">
+        <button class="btn danger" id="edit-delete" style="margin-right:auto">Delete</button>
+        <button class="btn" id="edit-cancel">Cancel</button>
+        <button class="btn primary" id="edit-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <b>Read me:</b> this tool authors builds for the SHD Field Toolkit's Builds page. It does not modify any of the
+    live site pages directly — "Publish" generates a JS object for you to paste into <code>division2-builds.html</code>
+    by hand, keeping the verify-before-ship workflow intact. The gear/brand/named database lives only in this
+    browser's local storage; use the Backup tab regularly.
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================================
+   1. STORAGE LAYER
+   ============================================================================ */
+const DB_KEY = "shd_build_creator_db_v1";
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (!raw) return { gearsets: [], brandsets: [], named: [] };
+    const parsed = JSON.parse(raw);
+    return { gearsets: parsed.gearsets || [], brandsets: parsed.brandsets || [], named: parsed.named || [] };
+  } catch (e) { console.error("DB load failed", e); return { gearsets: [], brandsets: [], named: [] }; }
+}
+function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(DB)); }
+let DB = loadDB();
+let nextId = 1;
+function newId(prefix) { return prefix + "_" + (Date.now().toString(36)) + "_" + (nextId++); }
+
+/* ============================================================================
+   2. CSV PARSER — handles quoted multi-line fields (RFC4180-ish)
+   ============================================================================ */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], next = text[i + 1];
+    if (inQuotes) {
+      if (c === '"' && next === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c => c && c.trim() !== ""));
+}
+function clean(s) { return (s || "").trim(); }
+function rowHasData(cells) { return cells.some(c => clean(c) !== ""); }
+
+/* ============================================================================
+   3. IMPORTERS — each returns { items: [...], flags: [...] } for review
+      Shared pairing heuristic: source sheet uses merged cells for names.
+      A CSV row with data but no name is "pending"; the following row that
+      has ONLY a name (nothing else) completes it.
+   ============================================================================ */
+
+// ---- Gearsets.csv: Name,Core Attr.,2pc,3pc,4pc,Chest Talent,Backpack Talent,Talent Multiplier,Drop location,Released
+function importGearsets(text) {
+  const rows = parseCSV(text).slice(1); // drop header
+  const results = [];
+  let pending = null;
+  for (const r of rows) {
+    const name = clean(r[0]);
+    const rest = r.slice(1);
+    const hasRest = rowHasData(rest);
+    if (!name && hasRest) {
+      pending = {
+        n: "", coreAttr: clean(r[1]), p2: clean(r[2]), p3: clean(r[3]), p4: clean(r[4]),
+        chestTalent: clean(r[5]), backpackTalent: clean(r[6]), talentMultiplier: clean(r[7]),
+        dropLocation: clean(r[8]), released: clean(r[9]), _flag: null
+      };
+    } else if (name && !hasRest && pending) {
+      pending.n = name;
+      results.push(pending);
+      pending = null;
+    } else if (name && hasRest) {
+      results.push({
+        n: name, coreAttr: clean(r[1]), p2: clean(r[2]), p3: clean(r[3]), p4: clean(r[4]),
+        chestTalent: clean(r[5]), backpackTalent: clean(r[6]), talentMultiplier: clean(r[7]),
+        dropLocation: clean(r[8]), released: clean(r[9]), _flag: null
+      });
+    }
+    // name with no rest and no pending → stray row, skip
+  }
+  if (pending) { pending.n = "(unnamed — check source row)"; pending._flag = "No name row followed this data — check the source sheet."; results.push(pending); }
+  results.forEach(it => { if (!it.n) { it.n = "(unnamed)"; it._flag = it._flag || "Missing name."; } });
+  return results;
+}
+
+// ---- Brandsets.csv: Category,,Brand,Core Attribute,1pc,2pc,3pc,Released  (Category forward-filled)
+function importBrandsets(text) {
+  const rows = parseCSV(text).slice(1);
+  const results = [];
+  let currentCategory = "";
+  for (const r of rows) {
+    const cat = clean(r[0]);
+    if (cat) currentCategory = cat;
+    const name = clean(r[2]);
+    if (!name) continue;
+    results.push({
+      n: name, category: currentCategory, coreAttr: clean(r[3]),
+      p1: clean(r[4]), p2: clean(r[5]), p3: clean(r[6]), released: clean(r[7]),
+      _flag: null
+    });
+  }
+  return results;
+}
+
+// ---- Gear: Named + Exotics.csv:
+// Type,,Brand,Released,Name,Icon,Talent,Description,Core attr,Minor1,Minor2,Minor3,Source,Flavour
+// Type forward-filled. Some rows (mostly newer exotics) have the same
+// name-on-next-row merge pattern as Gearsets.
+const SLOT_NORMALIZE = { "knees": "Kneepads", "kneepads": "Kneepads", "mask": "Mask", "chest": "Chest", "backpack": "Backpack", "gloves": "Gloves", "holster": "Holster" };
+function normalizeSlot(s) { return SLOT_NORMALIZE[clean(s).toLowerCase()] || clean(s); }
+function cleanName(s) { return clean(s).replace(/\s*\n\s*/g, " ").replace(/\s+/g, " "); }
+
+function importNamed(text) {
+  const rows = parseCSV(text).slice(1);
+  const results = [];
+  let currentType = "";
+  let pending = null;
+  for (const r of rows) {
+    const typeCol = clean(r[0]);
+    if (typeCol) currentType = normalizeSlot(typeCol);
+    const name = cleanName(r[4]);
+    const rest = [r[2], r[3], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13]];
+    const hasRest = rowHasData(rest);
+
+    if (!name && hasRest) {
+      pending = {
+        name: "", slot: currentType, brand: clean(r[2]), released: clean(r[3]),
+        talent: clean(r[6]), desc: clean(r[7]), coreAttr: clean(r[8]),
+        minor1: clean(r[9]), minor2: clean(r[10]), minor3: clean(r[11]),
+        source: clean(r[12]), flavor: clean(r[13]),
+        exotic: /exotic/i.test(clean(r[12])) || /exotic/i.test(currentType),
+        _flag: null
+      };
+    } else if (name && !hasRest && pending) {
+      pending.name = name;
+      results.push(pending);
+      pending = null;
+    } else if (name && hasRest) {
+      results.push({
+        name: name, slot: currentType, brand: clean(r[2]), released: clean(r[3]),
+        talent: clean(r[6]), desc: clean(r[7]), coreAttr: clean(r[8]),
+        minor1: clean(r[9]), minor2: clean(r[10]), minor3: clean(r[11]),
+        source: clean(r[12]), flavor: clean(r[13]),
+        exotic: /exotic/i.test(clean(r[12])) || /exotic/i.test(currentType),
+        _flag: null
+      });
+    }
+  }
+  if (pending) { pending.name = "(unnamed — check source row)"; pending._flag = "No name row followed this data — check the source sheet."; results.push(pending); }
+  results.forEach(it => { if (!it.name) { it.name = "(unnamed)"; it._flag = it._flag || "Missing name."; } });
+  return results;
+}
+
+/* ============================================================================
+   4. REVIEW MODAL — generic, works for any of the three import types
+   ============================================================================ */
+let reviewContext = null; // { type, items }
+
+function renderPreviewLine(type, item) {
+  if (type === "gearsets") {
+    return `<b>${esc(item.n)}</b> — ${esc(item.coreAttr)}<br>
+      2pc: ${esc(item.p2)} · 3pc: ${esc(item.p3)}<br>
+      4pc: ${esc(item.p4).slice(0,140)}${item.p4.length>140?"…":""}`;
+  }
+  if (type === "brandsets") {
+    return `<b>${esc(item.n)}</b> — ${esc(item.category)} (${esc(item.coreAttr)})<br>
+      1pc: ${esc(item.p1)} · 2pc: ${esc(item.p2)} · 3pc: ${esc(item.p3)}`;
+  }
+  return `<b>${esc(item.name)}</b> — ${esc(item.slot)} · ${esc(item.brand)}${item.exotic ? ' <span class="tag exotic">EXOTIC</span>' : ''}<br>
+    ${esc(item.talent)}${item.desc ? " — " + esc(item.desc).slice(0,140) + (item.desc.length>140?"…":"") : ""}`;
+}
+
+function openReview(type, items) {
+  reviewContext = { type, items };
+  document.getElementById("review-summary").textContent =
+    `${items.length} item(s) parsed. Uncheck any you don't want to import, fix the source sheet for flagged rows if needed, then commit.`;
+  const list = document.getElementById("review-list");
+  list.innerHTML = items.map((it, i) => `
+    <div class="review-row${it._flag ? " flagged" : ""}">
+      <input type="checkbox" checked data-idx="${i}">
+      <div class="review-fields">
+        ${renderPreviewLine(type, it)}
+        ${it._flag ? `<div class="review-flag-note">⚠ ${esc(it._flag)}</div>` : ""}
+      </div>
+    </div>`).join("");
+  document.getElementById("review-modal").classList.remove("hidden");
+}
+document.getElementById("review-cancel").onclick = () => document.getElementById("review-modal").classList.add("hidden");
+document.getElementById("review-commit").onclick = () => {
+  const { type, items } = reviewContext;
+  const checks = [...document.querySelectorAll("#review-list input[type=checkbox]")];
+  let committed = 0;
+  checks.forEach((cb, i) => {
+    if (!cb.checked) return;
+    const it = items[i];
+    delete it._flag;
+    if (type === "gearsets") upsertByName(DB.gearsets, it, "n", () => it.id = newId("gs"));
+    if (type === "brandsets") upsertByName(DB.brandsets, it, "n", () => it.id = newId("bs"));
+    if (type === "named") upsertByName(DB.named, it, "name", () => it.id = newId("nm"));
+    committed++;
+  });
+  saveDB();
+  document.getElementById("review-modal").classList.add("hidden");
+  renderAllTables();
+  alert(`Committed ${committed} item(s).`);
+};
+function upsertByName(list, item, key, assignId) {
+  const existingIdx = list.findIndex(x => x[key].toLowerCase() === item[key].toLowerCase());
+  if (existingIdx >= 0) { item.id = list[existingIdx].id; list[existingIdx] = item; }
+  else { assignId(); list.push(item); }
+}
+
+document.getElementById("import-gearsets").addEventListener("change", e => readFile(e, txt => openReview("gearsets", importGearsets(txt))));
+document.getElementById("import-brandsets").addEventListener("change", e => readFile(e, txt => openReview("brandsets", importBrandsets(txt))));
+document.getElementById("import-named").addEventListener("change", e => readFile(e, txt => openReview("named", importNamed(txt))));
+function readFile(e, cb) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { cb(reader.result); e.target.value = ""; };
+  reader.readAsText(file);
+}
+
+/* ============================================================================
+   5. DB TABLE RENDERING + MANUAL EDIT FORMS
+   ============================================================================ */
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+
+function renderAllTables() {
+  renderGearsetsTable();
+  renderBrandsetsTable();
+  renderNamedTable();
+  refreshCreatorDropdowns();
+  renderBackupSummary();
+}
+
+// -- Gear sets table
+function renderGearsetsTable() {
+  const term = document.getElementById("search-gearsets").value.toLowerCase();
+  const rows = DB.gearsets.filter(x => !term || x.n.toLowerCase().includes(term));
+  document.getElementById("count-gearsets").textContent = `${rows.length} / ${DB.gearsets.length} gear sets`;
+  document.getElementById("body-gearsets").innerHTML = rows.sort((a,b)=>a.n.localeCompare(b.n)).map(x => `
+    <tr data-id="${x.id}">
+      <td>${esc(x.n)}</td>
+      <td>${esc(x.coreAttr)}</td>
+      <td>${esc((x.p4||"").split("\n")[0]).slice(0,60)}</td>
+      <td>${esc(x.chestTalent).slice(0,30)} / ${esc(x.backpackTalent).slice(0,30)}</td>
+    </tr>`).join("") || `<tr><td colspan="4" style="color:var(--muted)">No gear sets yet — import a CSV or add one manually.</td></tr>`;
+  [...document.querySelectorAll("#body-gearsets tr[data-id]")].forEach(tr =>
+    tr.onclick = () => openEditGearset(DB.gearsets.find(x => x.id === tr.dataset.id)));
+}
+
+// -- Brand sets table
+function renderBrandsetsTable() {
+  const term = document.getElementById("search-brandsets").value.toLowerCase();
+  const rows = DB.brandsets.filter(x => !term || x.n.toLowerCase().includes(term));
+  document.getElementById("count-brandsets").textContent = `${rows.length} / ${DB.brandsets.length} brand sets`;
+  document.getElementById("body-brandsets").innerHTML = rows.sort((a,b)=>a.n.localeCompare(b.n)).map(x => `
+    <tr data-id="${x.id}">
+      <td>${esc(x.n)}</td><td>${esc(x.category)}</td>
+      <td>${esc(x.p1)}</td><td>${esc(x.p2)}</td><td>${esc(x.p3)}</td>
+    </tr>`).join("") || `<tr><td colspan="5" style="color:var(--muted)">No brand sets yet — import a CSV or add one manually.</td></tr>`;
+  [...document.querySelectorAll("#body-brandsets tr[data-id]")].forEach(tr =>
+    tr.onclick = () => openEditBrandset(DB.brandsets.find(x => x.id === tr.dataset.id)));
+}
+
+// -- Named items table
+function renderNamedTable() {
+  const term = document.getElementById("search-named").value.toLowerCase();
+  const rows = DB.named.filter(x => !term || x.name.toLowerCase().includes(term) || (x.brand||"").toLowerCase().includes(term));
+  document.getElementById("count-named").textContent = `${rows.length} / ${DB.named.length} named items`;
+  document.getElementById("body-named").innerHTML = rows.sort((a,b)=>a.name.localeCompare(b.name)).map(x => `
+    <tr data-id="${x.id}">
+      <td>${esc(x.name)}</td><td>${esc(x.slot)}</td><td>${esc(x.brand)}</td>
+      <td>${esc(x.talent).slice(0,40)}</td>
+      <td>${x.exotic ? '<span class="tag exotic">EXOTIC</span>' : ''}</td>
+    </tr>`).join("") || `<tr><td colspan="5" style="color:var(--muted)">No named items yet — import a CSV or add one manually.</td></tr>`;
+  [...document.querySelectorAll("#body-named tr[data-id]")].forEach(tr =>
+    tr.onclick = () => openEditNamed(DB.named.find(x => x.id === tr.dataset.id)));
+}
+
+["search-gearsets","search-brandsets","search-named"].forEach(id =>
+  document.getElementById(id).addEventListener("input", renderAllTables));
+
+// ---- Generic edit modal plumbing ----
+let editContext = null; // { kind, item, isNew }
+function openEditModal(title, bodyHtml, kind, item, isNew) {
+  editContext = { kind, item, isNew };
+  document.getElementById("edit-modal-title").textContent = title;
+  document.getElementById("edit-modal-body").innerHTML = bodyHtml;
+  document.getElementById("edit-delete").style.display = isNew ? "none" : "inline-flex";
+  document.getElementById("edit-modal").classList.remove("hidden");
+}
+document.getElementById("edit-cancel").onclick = () => document.getElementById("edit-modal").classList.add("hidden");
+document.getElementById("edit-delete").onclick = () => {
+  if (!confirm("Delete this item? This can't be undone.")) return;
+  const { kind, item } = editContext;
+  const list = kind === "gearset" ? DB.gearsets : kind === "brandset" ? DB.brandsets : DB.named;
+  const idx = list.findIndex(x => x.id === item.id);
+  if (idx >= 0) list.splice(idx, 1);
+  saveDB(); renderAllTables();
+  document.getElementById("edit-modal").classList.add("hidden");
+};
+
+function fieldVal(id) { const el = document.getElementById(id); return el ? el.value : ""; }
+
+function openEditGearset(item) {
+  const isNew = !item;
+  item = item || { id: null, n: "", coreAttr: "", p2: "", p3: "", p4: "", chestTalent: "", backpackTalent: "", talentMultiplier: "", dropLocation: "", released: "" };
+  openEditModal(isNew ? "Add Gear Set" : "Edit Gear Set", `
+    <div class="field"><label>Name</label><input type="text" id="f-n" value="${esc(item.n)}"></div>
+    <div class="field-row">
+      <div class="field"><label>Core Attribute</label><input type="text" id="f-coreAttr" value="${esc(item.coreAttr)}"></div>
+      <div class="field"><label>Drop Location</label><input type="text" id="f-dropLocation" value="${esc(item.dropLocation)}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>2pc Bonus</label><textarea id="f-p2">${esc(item.p2)}</textarea></div>
+      <div class="field"><label>3pc Bonus</label><textarea id="f-p3">${esc(item.p3)}</textarea></div>
+    </div>
+    <div class="field"><label>4pc Talent</label><textarea id="f-p4">${esc(item.p4)}</textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Chest Talent (upgrade)</label><textarea id="f-chestTalent">${esc(item.chestTalent)}</textarea></div>
+      <div class="field"><label>Backpack Talent (upgrade)</label><textarea id="f-backpackTalent">${esc(item.backpackTalent)}</textarea></div>
+    </div>
+  `, "gearset", item, isNew);
+}
+document.getElementById("add-gearset").onclick = () => openEditGearset(null);
+
+function openEditBrandset(item) {
+  const isNew = !item;
+  item = item || { id: null, n: "", category: "", coreAttr: "", p1: "", p2: "", p3: "", released: "" };
+  openEditModal(isNew ? "Add Brand Set" : "Edit Brand Set", `
+    <div class="field"><label>Name</label><input type="text" id="f-n" value="${esc(item.n)}"></div>
+    <div class="field-row">
+      <div class="field"><label>Category</label><input type="text" id="f-category" value="${esc(item.category)}" placeholder="Armor / Skill Tier / Weapon Damage"></div>
+      <div class="field"><label>Core Attribute</label><input type="text" id="f-coreAttr" value="${esc(item.coreAttr)}"></div>
+    </div>
+    <div class="field"><label>1pc Bonus</label><input type="text" id="f-p1" value="${esc(item.p1)}"></div>
+    <div class="field"><label>2pc Bonus</label><input type="text" id="f-p2" value="${esc(item.p2)}"></div>
+    <div class="field"><label>3pc Bonus</label><input type="text" id="f-p3" value="${esc(item.p3)}"></div>
+  `, "brandset", item, isNew);
+}
+document.getElementById("add-brandset").onclick = () => openEditBrandset(null);
+
+const SLOT_OPTIONS = ["Mask","Chest","Backpack","Gloves","Holster","Kneepads"];
+function openEditNamed(item) {
+  const isNew = !item;
+  item = item || { id: null, name: "", slot: "", brand: "", talent: "", desc: "", coreAttr: "", minor1: "", minor2: "", minor3: "", source: "", flavor: "", exotic: false };
+  openEditModal(isNew ? "Add Named / Exotic Item" : "Edit Named / Exotic Item", `
+    <div class="field"><label>Name</label><input type="text" id="f-name" value="${esc(item.name)}"></div>
+    <div class="field-row">
+      <div class="field"><label>Slot</label>
+        <select id="f-slot">${SLOT_OPTIONS.map(s => `<option ${item.slot===s?"selected":""}>${s}</option>`).join("")}</select>
+      </div>
+      <div class="field"><label>Brand / Gear Set (blank if standalone exotic)</label><input type="text" id="f-brand" value="${esc(item.brand)}"></div>
+    </div>
+    <div class="field"><label>Talent Name</label><input type="text" id="f-talent" value="${esc(item.talent)}"></div>
+    <div class="field"><label>Talent / Perk Description</label><textarea id="f-desc">${esc(item.desc)}</textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Core Attribute</label><input type="text" id="f-coreAttr" value="${esc(item.coreAttr)}"></div>
+      <div class="field-check"><input type="checkbox" id="f-exotic" ${item.exotic?"checked":""}><label for="f-exotic" style="margin:0">Is Exotic</label></div>
+    </div>
+    <div class="field"><label>Source</label><input type="text" id="f-source" value="${esc(item.source)}"></div>
+  `, "named", item, isNew);
+}
+document.getElementById("add-named").onclick = () => openEditNamed(null);
+
+document.getElementById("edit-save").onclick = () => {
+  const { kind, item, isNew } = editContext;
+  if (kind === "gearset") {
+    Object.assign(item, { n: fieldVal("f-n"), coreAttr: fieldVal("f-coreAttr"), dropLocation: fieldVal("f-dropLocation"),
+      p2: fieldVal("f-p2"), p3: fieldVal("f-p3"), p4: fieldVal("f-p4"),
+      chestTalent: fieldVal("f-chestTalent"), backpackTalent: fieldVal("f-backpackTalent") });
+    if (!item.n.trim()) { alert("Name is required."); return; }
+    if (isNew) { item.id = newId("gs"); DB.gearsets.push(item); }
+  }
+  if (kind === "brandset") {
+    Object.assign(item, { n: fieldVal("f-n"), category: fieldVal("f-category"), coreAttr: fieldVal("f-coreAttr"),
+      p1: fieldVal("f-p1"), p2: fieldVal("f-p2"), p3: fieldVal("f-p3") });
+    if (!item.n.trim()) { alert("Name is required."); return; }
+    if (isNew) { item.id = newId("bs"); DB.brandsets.push(item); }
+  }
+  if (kind === "named") {
+    Object.assign(item, { name: fieldVal("f-name"), slot: fieldVal("f-slot"), brand: fieldVal("f-brand"),
+      talent: fieldVal("f-talent"), desc: fieldVal("f-desc"), coreAttr: fieldVal("f-coreAttr"),
+      source: fieldVal("f-source"), exotic: document.getElementById("f-exotic").checked });
+    if (!item.name.trim()) { alert("Name is required."); return; }
+    if (isNew) { item.id = newId("nm"); DB.named.push(item); }
+  }
+  saveDB(); renderAllTables();
+  document.getElementById("edit-modal").classList.add("hidden");
+};
+
+/* ============================================================================
+   6. BACKUP / RESTORE
+   ============================================================================ */
+function renderBackupSummary() {
+  document.getElementById("backup-summary").textContent =
+    `Working database: ${DB.gearsets.length} gear sets · ${DB.brandsets.length} brand sets · ${DB.named.length} named items.`;
+}
+document.getElementById("export-backup").onclick = () => {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `shd-build-creator-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+};
+document.getElementById("restore-backup").addEventListener("change", e => {
+  readFile(e, txt => {
+    try {
+      const parsed = JSON.parse(txt);
+      if (!confirm("This replaces your entire working database with the backup file. Continue?")) return;
+      DB = { gearsets: parsed.gearsets || [], brandsets: parsed.brandsets || [], named: parsed.named || [] };
+      saveDB(); renderAllTables();
+      alert("Restored.");
+    } catch (err) { alert("Couldn't read that file as JSON backup: " + err.message); }
+  });
+});
+document.getElementById("wipe-db").onclick = () => {
+  if (!confirm("Wipe the entire working database? This can't be undone — export a backup first if unsure.")) return;
+  DB = { gearsets: [], brandsets: [], named: [] };
+  saveDB(); renderAllTables();
+};
+
+/* ============================================================================
+   7. TABS
+   ============================================================================ */
+document.querySelectorAll(".tabbtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tabbtn").forEach(b => b.setAttribute("aria-selected", b === btn ? "true" : "false"));
+    document.querySelectorAll(".tabpanel").forEach(p => p.classList.remove("active"));
+    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    if (btn.dataset.tab === "creator") renderPreview();
+  });
+});
+
+/* ============================================================================
+   8. BUILD CREATOR
+   ============================================================================ */
+const SLOT_LABELS = ["MASK","CHEST","BACKPACK","GLOVES","HOLSTER","KNEEPADS"];
+const SLOT_CODE_TO_NAMED = { MASK: "Mask", CHEST: "Chest", BACKPACK: "Backpack", GLOVES: "Gloves", HOLSTER: "Holster", KNEEPADS: "Kneepads" };
+const LOGO_NAME_OVERRIDES = { "ortiz: exuro": "exuro", "ortiz: reficere": "reficere" };
+// Normalizes accented characters to their plain-ASCII base (e.g. "Česká" → "Ceska").
+// Needed because the two source CSVs spell some brands differently — Brandsets.csv
+// keeps diacritics ("Česká Výroba s.r.o."), Gear: Named + Exotics.csv doesn't
+// ("Ceska Vyroba s.r.o.") — and logo filenames on disk are always plain ASCII.
+function stripDiacritics(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+function slugLogo(name) {
+  if (!name) return "";
+  const key = name.toLowerCase();
+  if (LOGO_NAME_OVERRIDES[key]) return LOGO_NAME_OVERRIDES[key];
+  const stripped = stripDiacritics(name).toLowerCase().replace(/\([^)]*\)/g, "").replace(/['’.]/g, "");
+  const m = stripped.match(/[a-z0-9]+/);
+  return m ? m[0] : "";
+}
+
+// current in-progress build (plain object, matches BUILDS schema)
+let cb = freshBuild();
+function freshBuild() {
+  return {
+    id: "", cat: "dps", name: "", subtitle: "", diff: "easy", spec: "",
+    slots: SLOT_LABELS.map(s => ({ slot: s, mode: "gear", set: "", logo: "", talent: "", exotic: false, flex: false, flexNote: "" })),
+    weapons: "", skills: "", exoticNote: "", exoticOpt: "", cores: "", attribs: "", warn: "", playstyle: ""
+  };
+}
+
+function buildCreatorForm() {
+  const el = document.getElementById("creator-form");
+  el.innerHTML = `
+    <div class="form-section">
+      <div class="form-section-title">Build Meta</div>
+      <div class="field"><label>Name</label><input type="text" id="cb-name" value="${esc(cb.name)}" placeholder="e.g. Striker: The Workhorse"></div>
+      <div class="field"><label>Subtitle</label><input type="text" id="cb-subtitle" value="${esc(cb.subtitle)}" placeholder="e.g. Sustained AR / LMG — the endgame starting point"></div>
+      <div class="field-row">
+        <div class="field"><label>Category</label>
+          <select id="cb-cat">${["dps","skill","tank","support"].map(c=>`<option value="${c}" ${cb.cat===c?"selected":""}>${c.toUpperCase()}</option>`).join("")}</select>
+        </div>
+        <div class="field"><label>Difficulty</label>
+          <select id="cb-diff">${["easy","medium","hard"].map(d=>`<option value="${d}" ${cb.diff===d?"selected":""}>${d[0].toUpperCase()+d.slice(1)}</option>`).join("")}</select>
+        </div>
+      </div>
+      <div class="field"><label>Specialization (optional)</label><input type="text" id="cb-spec" value="${esc(cb.spec)}" placeholder="e.g. Technician"></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Gear Slots</div>
+      <div id="slot-editors"></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Loadout Details</div>
+      <div class="field"><label>Weapons</label><textarea id="cb-weapons">${esc(cb.weapons)}</textarea></div>
+      <div class="field"><label>Skills</label><textarea id="cb-skills">${esc(cb.skills)}</textarea></div>
+      <div class="field-row">
+        <div class="field"><label>Exotic</label><input type="text" id="cb-exoticNote" value="${esc(cb.exoticNote)}" placeholder="e.g. St. Elmo's Engine AR"></div>
+        <div class="field"><label>Exotic note (optional upgrade text)</label><input type="text" id="cb-exoticOpt" value="${esc(cb.exoticOpt)}" placeholder="e.g. optional upgrade — build works without it"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Cores</label><input type="text" id="cb-cores" value="${esc(cb.cores)}" placeholder="e.g. 6× Red (Weapon Damage)"></div>
+        <div class="field"><label>Attributes</label><textarea id="cb-attribs">${esc(cb.attribs)}</textarea></div>
+      </div>
+      <div class="field"><label>Warning banner (optional)</label><textarea id="cb-warn">${esc(cb.warn)}</textarea></div>
+      <div class="field"><label>Playstyle</label><textarea id="cb-playstyle" style="min-height:110px">${esc(cb.playstyle)}</textarea></div>
+    </div>
+  `;
+  renderSlotEditors();
+  el.querySelectorAll("input,select,textarea").forEach(inp => inp.addEventListener("input", syncFormToModel));
+}
+
+function refreshCreatorDropdowns() {
+  if (document.getElementById("tab-creator").classList.contains("active")) renderSlotEditors();
+}
+
+function renderSlotEditors() {
+  const wrap = document.getElementById("slot-editors");
+  if (!wrap) return;
+  const sortByName = (arr, key) => [...arr].sort((a, b) => a[key].localeCompare(b[key]));
+  const gearSorted = sortByName(DB.gearsets, "n");
+  const brandSorted = sortByName(DB.brandsets, "n");
+
+  function namedFor(slotCode, wantExotic) {
+    const slotName = (SLOT_CODE_TO_NAMED[slotCode] || "").toLowerCase();
+    return sortByName(DB.named.filter(n => n.slot.toLowerCase() === slotName && !!n.exotic === wantExotic), "name");
+  }
+  function namedOptionLabel(n) { return n.brand ? `${n.name} (${n.brand})` : n.name; }
+  function namedDisplaySet(n) { return (n.brand && n.brand.trim()) ? n.brand : n.name; }
+
+  wrap.innerHTML = cb.slots.map((s, i) => {
+    const gearOpts = gearSorted.map(g => `<option value="${esc(g.n)}" ${s.set===g.n?"selected":""}>${esc(g.n)}</option>`).join("");
+    const brandOpts = brandSorted.map(b => `<option value="${esc(b.n)}" ${s.set===b.n?"selected":""}>${esc(b.n)}</option>`).join("");
+    const exoticList = namedFor(s.slot, true);
+    const namedList = namedFor(s.slot, false);
+    const exoticOpts = exoticList.map(n => `<option value="${esc(n.name)}" ${s.namedItem===n.name?"selected":""}>${esc(namedOptionLabel(n))}</option>`).join("");
+    const namedOpts = namedList.map(n => `<option value="${esc(n.name)}" ${s.namedItem===n.name?"selected":""}>${esc(namedOptionLabel(n))}</option>`).join("");
+
+    const modes = [
+      { m: "gear", label: "Gear Set" },
+      { m: "brand", label: "Brand Set" },
+      { m: "exotic", label: "Exotic" },
+      { m: "named", label: "Named" },
+      { m: "flex", label: "Flex" }
+    ];
+    const modeButtons = modes.map(mo => `<button type="button" data-mode="${mo.m}" aria-pressed="${s.mode===mo.m}">${mo.label}</button>`).join("");
+
+    let body = "";
+    if (s.mode === "gear" || s.mode === "brand") {
+      body = `
+        <div class="field" style="margin-bottom:6px">
+          <select class="slot-set-select">
+            <option value="">— select ${s.mode === "gear" ? "gear set" : "brand"} (A–Z) —</option>
+            ${s.mode === "gear" ? gearOpts : brandOpts}
+          </select>
+        </div>
+        <div class="field-row">
+          <input type="text" class="slot-talent-input" placeholder="Talent (auto-fills for gear sets, editable)" value="${esc(s.talent)}">
+          <div class="field-check"><input type="checkbox" class="slot-exotic-check" ${s.exotic?"checked":""}><label style="margin:0">Exotic</label></div>
+        </div>`;
+    } else if (s.mode === "exotic" || s.mode === "named") {
+      const opts = s.mode === "exotic" ? exoticOpts : namedOpts;
+      const emptyLabel = s.mode === "exotic" ? "no exotic items for this slot" : "no named items for this slot";
+      body = `
+        <div class="field" style="margin-bottom:6px">
+          <select class="slot-set-select">
+            <option value="">— select item (A–Z) —</option>
+            ${opts || ""}
+          </select>
+          ${!opts ? `<div style="font-size:.66rem;color:var(--muted);margin-top:4px">No ${s.mode} items found for ${s.slot} in the database yet.</div>` : ""}
+        </div>
+        <div class="field-row">
+          <input type="text" class="slot-talent-input" placeholder="Talent (auto-fills, editable)" value="${esc(s.talent)}">
+          <div class="field-check"><input type="checkbox" class="slot-exotic-check" ${s.exotic?"checked":""} ${s.mode==="exotic"?"disabled":""}><label style="margin:0">Exotic</label></div>
+        </div>`;
+    } else {
+      body = `
+        <div class="field" style="margin-bottom:0">
+          <input type="text" class="slot-flexnote-input" placeholder="Flex note, e.g. Crit Chance / Damage brand" value="${esc(s.flexNote)}">
+        </div>`;
+    }
+
+    return `
+      <div class="slot-editor" data-slot-idx="${i}">
+        <div class="slot-editor-head">${s.slot}</div>
+        <div class="slot-mode-row">${modeButtons}</div>
+        ${body}
+      </div>`;
+  }).join("");
+
+  // wire events
+  [...wrap.querySelectorAll(".slot-editor")].forEach(div => {
+    const idx = +div.dataset.slotIdx;
+    div.querySelectorAll(".slot-mode-row button").forEach(b => b.onclick = () => {
+      const s = cb.slots[idx];
+      s.mode = b.dataset.mode;
+      s.flex = b.dataset.mode === "flex";
+      s.set = ""; s.logo = ""; s.talent = ""; s.namedItem = ""; s.exotic = (b.dataset.mode === "exotic");
+      renderSlotEditors(); renderPreview();
+    });
+
+    const setSel = div.querySelector(".slot-set-select");
+    if (setSel) setSel.onchange = () => {
+      const s = cb.slots[idx];
+      if (s.mode === "gear" || s.mode === "brand") {
+        s.set = setSel.value;
+        s.logo = slugLogo(setSel.value);
+        if (s.mode === "gear") {
+          const gs = DB.gearsets.find(g => g.n === setSel.value);
+          if (gs) {
+            if (s.slot === "CHEST" && gs.p4) s.talent = firstLine(gs.p4);
+            if (s.slot === "BACKPACK" && gs.backpackTalent) s.talent = firstLine(gs.backpackTalent);
+          }
+        }
+      } else { // exotic or named
+        const item = DB.named.find(n => n.name === setSel.value);
+        s.namedItem = setSel.value;
+        if (item) {
+          s.set = namedDisplaySet(item);
+          s.logo = slugLogo(s.set);
+          s.talent = item.talent || firstLine(item.desc);
+          s.exotic = !!item.exotic;
+        }
+      }
+      renderSlotEditors(); renderPreview();
+    };
+
+    const talentInp = div.querySelector(".slot-talent-input");
+    if (talentInp) talentInp.oninput = () => { cb.slots[idx].talent = talentInp.value; renderPreview(); };
+    const exoticChk = div.querySelector(".slot-exotic-check");
+    if (exoticChk) exoticChk.onchange = () => { cb.slots[idx].exotic = exoticChk.checked; renderPreview(); };
+    const flexInp = div.querySelector(".slot-flexnote-input");
+    if (flexInp) flexInp.oninput = () => { cb.slots[idx].flexNote = flexInp.value; renderPreview(); };
+  });
+}
+function firstLine(s) { return (s || "").split("\n")[0].trim(); }
+
+function syncFormToModel() {
+  cb.name = fieldVal("cb-name"); cb.subtitle = fieldVal("cb-subtitle");
+  cb.cat = fieldVal("cb-cat"); cb.diff = fieldVal("cb-diff"); cb.spec = fieldVal("cb-spec");
+  cb.weapons = fieldVal("cb-weapons"); cb.skills = fieldVal("cb-skills");
+  cb.exoticNote = fieldVal("cb-exoticNote"); cb.exoticOpt = fieldVal("cb-exoticOpt");
+  cb.cores = fieldVal("cb-cores"); cb.attribs = fieldVal("cb-attribs");
+  cb.warn = fieldVal("cb-warn"); cb.playstyle = fieldVal("cb-playstyle");
+  renderPreview();
+}
+
+document.getElementById("creator-clear").onclick = () => {
+  if (!confirm("Clear the current build form?")) return;
+  cb = freshBuild();
+  buildCreatorForm(); renderPreview();
+  document.getElementById("export-box").style.display = "none";
+};
+
+/* ---- Import Build: paste a JS build-object snippet and load it into the form ----
+   Uses Function(...) rather than JSON.parse because the pasted text is a JS object
+   literal (unquoted keys, apostrophes in strings) exactly as it appears in
+   division2-builds.html — not strict JSON. This is safe here because the only
+   person who ever pastes into this tool is the person running it locally. */
+document.getElementById("creator-import").onclick = () => {
+  document.getElementById("import-build-text").value = "";
+  document.getElementById("import-build-picker").innerHTML = "";
+  document.getElementById("import-build-modal").classList.remove("hidden");
+};
+document.getElementById("import-build-cancel").onclick = () => document.getElementById("import-build-modal").classList.add("hidden");
+
+function parseBuildSnippet(raw) {
+  const t = raw.trim();
+  if (!t) throw new Error("Paste is empty.");
+  let arrSrc;
+  if (/\bBUILDS\s*=/.test(t)) {
+    const m = t.match(/\[([\s\S]*)\]/);
+    if (!m) throw new Error("Found \"BUILDS =\" but no [ ... ] array after it.");
+    arrSrc = "[" + m[1] + "]";
+  } else if (t.startsWith("[")) {
+    arrSrc = t;
+  } else {
+    arrSrc = "[" + t + "]";
+  }
+  const result = Function('"use strict"; return (' + arrSrc + ');')();
+  if (!Array.isArray(result)) throw new Error("That parsed, but wasn't an array of build objects.");
+  return result;
+}
+
+// Match an imported slot back to a database entry so it drops into the right
+// dropdown mode. If nothing matches, the slot's own set/talent/exotic values
+// are preserved and rendered correctly regardless — only the dropdown pre-fill
+// is best-effort.
+function namesMatch(a, b) { return stripDiacritics(a || "").toLowerCase().trim() === stripDiacritics(b || "").toLowerCase().trim(); }
+function inferSlotMode(code, src) {
+  const slotName = (SLOT_CODE_TO_NAMED[code] || "").toLowerCase();
+  if (DB.gearsets.some(g => namesMatch(g.n, src.set))) return "gear";
+  const namedMatch = DB.named.find(n => n.slot.toLowerCase() === slotName &&
+    namesMatch((n.brand && n.brand.trim()) ? n.brand : n.name, src.set) && !!n.exotic === !!src.exotic);
+  if (namedMatch) return namedMatch.exotic ? "exotic" : "named";
+  if (DB.brandsets.some(b => namesMatch(b.n, src.set))) return "brand";
+  return src.exotic ? "exotic" : "brand";
+}
+function findNamedItemNameFor(code, src) {
+  const slotName = (SLOT_CODE_TO_NAMED[code] || "").toLowerCase();
+  const m = DB.named.find(n => n.slot.toLowerCase() === slotName &&
+    namesMatch((n.brand && n.brand.trim()) ? n.brand : n.name, src.set) && !!n.exotic === !!src.exotic);
+  return m ? m.name : "";
+}
+
+function loadBuildIntoCreator(b) {
+  const fresh = freshBuild();
+  fresh.id = b.id || ""; fresh.cat = b.cat || "dps"; fresh.name = b.name || "";
+  fresh.subtitle = b.subtitle || ""; fresh.diff = b.diff || "easy"; fresh.spec = b.spec || "";
+  fresh.warn = b.warn || ""; fresh.playstyle = b.playstyle || "";
+  (b.statsLeft || []).forEach(row => {
+    if (row.l === "Weapons") fresh.weapons = row.v || "";
+    else if (row.l === "Skills") fresh.skills = row.v || "";
+    else if (row.l === "Exotic") { fresh.exoticNote = row.v || ""; fresh.exoticOpt = row.opt || ""; }
+  });
+  (b.statsRight || []).forEach(row => {
+    if (row.l === "Cores") fresh.cores = row.v || "";
+    else if (row.l === "Attribs") fresh.attribs = row.v || "";
+  });
+  fresh.slots = SLOT_LABELS.map(code => {
+    const src = (b.slots || []).find(s => s.slot === code);
+    if (!src) return { slot: code, mode: "gear", set: "", logo: "", talent: "", exotic: false, flex: false, flexNote: "" };
+    if (src.flex) return { slot: code, mode: "flex", set: src.set || "Flex brand", logo: null, talent: "", exotic: false, flex: true, flexNote: src.flexNote || "" };
+    const mode = inferSlotMode(code, src);
+    return {
+      slot: code, mode, set: src.set || "", logo: src.logo || slugLogo(src.set || ""),
+      talent: src.talent || "", exotic: !!src.exotic, flex: false, flexNote: "",
+      namedItem: (mode === "named" || mode === "exotic") ? findNamedItemNameFor(code, src) : ""
+    };
+  });
+  cb = fresh;
+  document.querySelector('.tabbtn[data-tab="creator"]').click();
+  buildCreatorForm();
+  renderPreview();
+  document.getElementById("export-box").style.display = "none";
+}
+
+document.getElementById("import-build-parse").onclick = () => {
+  let builds;
+  try { builds = parseBuildSnippet(document.getElementById("import-build-text").value); }
+  catch (e) { alert("Couldn't parse that as a build — check for JS syntax errors.\n\n" + e.message); return; }
+  if (!builds.length) { alert("No build objects found in that text."); return; }
+  if (builds.length === 1) { loadBuildIntoCreator(builds[0]); document.getElementById("import-build-modal").classList.add("hidden"); return; }
+  const picker = document.getElementById("import-build-picker");
+  picker.innerHTML = `<div class="db-count">${builds.length} builds found — pick one to load:</div>` +
+    builds.map((b, i) => `<div class="review-row"><div class="review-fields"><b>${esc(b.name || "(untitled)")}</b> — ${esc(b.subtitle || "")}</div><button class="btn" data-idx="${i}" style="flex-shrink:0">Load</button></div>`).join("");
+  [...picker.querySelectorAll("button[data-idx]")].forEach(btn => btn.onclick = () => {
+    loadBuildIntoCreator(builds[+btn.dataset.idx]);
+    document.getElementById("import-build-modal").classList.add("hidden");
+  });
+};
+
+/* ---- Preview: mirrors renderBuilds() from division2-builds.html exactly ---- */
+function logoImgHTML(logoKey, alt, isExotic, isFlex) {
+  const wrapClass = ["logo-wrap", isExotic ? "exotic-wrap" : "", isFlex ? "flex-wrap" : ""].filter(Boolean).join(" ");
+  if (!logoKey) return `<div class="${wrapClass}"><span class="logo-placeholder">?</span></div>`;
+  const src = `logos/${logoKey}.png`;
+  const initial = (alt || "?")[0].toUpperCase();
+  return `<div class="${wrapClass}">
+    <img src="${src}" alt="${esc(alt)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+    <span class="logo-placeholder" style="display:none">${initial}</span>
+  </div>`;
+}
+function renderPreview() {
+  const mount = document.getElementById("preview-mount");
+  if (!cb.name && !cb.subtitle) { mount.className = "preview-empty"; mount.innerHTML = "Fill in the form to see the build card here."; return; }
+  mount.className = ""; mount.innerHTML = "";
+
+  const card = document.createElement("div");
+  card.className = "build-card"; card.dataset.cat = cb.cat;
+
+  const specHtml = cb.spec ? `<div class="spec-badge">${esc(cb.spec)}</div>` : "";
+  card.innerHTML += `
+    <div class="card-head">
+      <div class="head-left">
+        <div class="head-badges">
+          <span class="cat-badge ${cb.cat}">${cb.cat.toUpperCase()}</span>
+          <span class="diff-badge ${cb.diff}">${cb.diff[0].toUpperCase()+cb.diff.slice(1)}</span>
+        </div>
+        <div class="build-name">${esc(cb.name) || "(untitled build)"}</div>
+        <div class="build-subtitle">${esc(cb.subtitle)}</div>
+        ${specHtml}
+      </div>
+    </div>`;
+
+  const slotCells = cb.slots.map(s => {
+    const isFlex = s.mode === "flex";
+    const setLabel = isFlex ? "Flex brand" : (s.set || "—");
+    const talentHtml = !isFlex && s.talent ? `<div class="slot-talent">${esc(s.talent)}</div>` : "";
+    const nameClass = !isFlex && s.exotic ? "exotic-name" : isFlex ? "flex-name" : "";
+    const subName = isFlex && s.flexNote ? `<br><span style="font-size:.57rem;color:var(--muted)">${esc(s.flexNote)}</span>` : "";
+    return `<div class="slot-cell">
+      <div class="slot-label">${s.slot}</div>
+      ${logoImgHTML(isFlex ? null : s.logo, setLabel, !isFlex && s.exotic, isFlex)}
+      <div class="slot-set-name ${nameClass}">${esc(setLabel)}${subName}</div>
+      ${talentHtml}
+    </div>`;
+  }).join("");
+  card.innerHTML += `<div class="gear-strip">${slotCells}</div>`;
+
+  const leftRows = [
+    cb.weapons && { l: "Weapons", v: cb.weapons },
+    cb.skills && { l: "Skills", v: cb.skills },
+    cb.exoticNote && { l: "Exotic", v: cb.exoticNote, opt: cb.exoticOpt }
+  ].filter(Boolean).map(s => `<div class="stat-row"><span class="stat-label">${s.l}</span><span class="stat-val">${esc(s.v).replace(/\n/g,"<br>")}${s.opt ? `<br><span class="muted">${esc(s.opt)}</span>` : ""}</span></div>`).join("");
+  const rightRows = [
+    cb.cores && { l: "Cores", v: cb.cores },
+    cb.attribs && { l: "Attribs", v: cb.attribs }
+  ].filter(Boolean).map(s => `<div class="stat-row"><span class="stat-label">${s.l}</span><span class="stat-val">${esc(s.v).replace(/\n/g,"<br>")}</span></div>`).join("");
+  card.innerHTML += `<div class="card-stats"><div class="stat-col">${leftRows}</div><div class="stat-col">${rightRows}</div></div>`;
+
+  if (cb.warn) card.innerHTML += `<div class="warn-banner">${esc(cb.warn)}</div>`;
+  card.innerHTML += `<div class="card-playstyle"><div class="ps-label">Playstyle</div><p class="ps-text">${esc(cb.playstyle)}</p></div>`;
+
+  mount.appendChild(card);
+}
+
+/* ---- Publish: emit a JS object literal matching the BUILDS schema ---- */
+function jsStr(s) { return "\"" + String(s || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n") + "\""; }
+document.getElementById("publish-btn").onclick = () => {
+  if (!cb.name) { alert("Give the build a name first."); return; }
+  const id = cb.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const slotsJS = cb.slots.map(s => {
+    if (s.mode === "flex") {
+      return `      { slot:"${s.slot}", set:"Flex brand", logo:null, flex:true, flexNote:${jsStr(s.flexNote)} },`;
+    }
+    const parts = [`slot:"${s.slot}"`, `set:${jsStr(s.set)}`, `logo:${s.logo ? jsStr(s.logo) : "null"}`];
+    if (s.talent) parts.push(`talent:${jsStr(s.talent)}`);
+    if (s.exotic) parts.push(`exotic:true`);
+    return `      { ${parts.join(", ")} },`;
+  }).join("\n");
+
+  const statsLeft = [];
+  if (cb.weapons) statsLeft.push(`      { l:"Weapons", v:${jsStr(cb.weapons)} },`);
+  if (cb.skills) statsLeft.push(`      { l:"Skills", v:${jsStr(cb.skills)} },`);
+  if (cb.exoticNote) statsLeft.push(`      { l:"Exotic", v:${jsStr(cb.exoticNote)}${cb.exoticOpt ? `, opt:${jsStr(cb.exoticOpt)}` : ""} },`);
+
+  const statsRight = [];
+  if (cb.cores) statsRight.push(`      { l:"Cores", v:${jsStr(cb.cores)} },`);
+  if (cb.attribs) statsRight.push(`      { l:"Attribs", v:${jsStr(cb.attribs)} },`);
+
+  const out = `  {
+    id: ${jsStr(id)},
+    cat: ${jsStr(cb.cat)},
+    name: ${jsStr(cb.name)},
+    subtitle: ${jsStr(cb.subtitle)},
+    diff: ${jsStr(cb.diff)},${cb.spec ? `\n    spec: ${jsStr(cb.spec)},` : ""}
+    slots: [
+${slotsJS}
+    ],
+    statsLeft: [
+${statsLeft.join("\n")}
+    ],
+    statsRight: [
+${statsRight.join("\n")}
+    ],${cb.warn ? `\n    warn: ${jsStr(cb.warn)},` : ""}
+    playstyle: ${jsStr(cb.playstyle)}
+  },`;
+
+  document.getElementById("export-text").value = out;
+  document.getElementById("export-box").style.display = "block";
+};
+document.getElementById("copy-export").onclick = () => {
+  const ta = document.getElementById("export-text");
+  ta.select(); document.execCommand("copy");
+  alert("Copied.");
+};
+document.getElementById("download-export").onclick = () => {
+  const text = document.getElementById("export-text").value;
+  const blob = new Blob([text], { type: "text/javascript" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `build-${(cb.name||"untitled").toLowerCase().replace(/[^a-z0-9]+/g,"-")}.js`;
+  a.click();
+};
+
+/* ============================================================================
+   9. INIT
+   ============================================================================ */
+buildCreatorForm();
+renderAllTables();
+renderPreview();
+</script>

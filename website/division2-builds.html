@@ -91,7 +91,7 @@
     text-transform: uppercase; font-size: .58rem; padding: 3px 9px;
     border: 1px solid; display: inline-flex; align-items: center; gap: 5px;
   }
-  .diff-badge::before { content: "●"; font-size: .45rem; }
+  .diff-badge::before { content: "?"; font-size: .45rem; }
   .diff-badge.easy   { color: var(--easy);   border-color: var(--easy);   background: rgba(84,192,110,.08); }
   .diff-badge.medium { color: var(--medium); border-color: var(--medium); background: rgba(255,179,64,.08); }
   .diff-badge.hard   { color: var(--hard);   border-color: var(--hard);   background: rgba(224,82,82,.08); }
@@ -111,7 +111,7 @@
   }
   .spec-badge::before { content: "SPEC"; font-size: .5rem; color: var(--amber-dim); margin-right: 3px; }
 
-  /* ── GEAR SLOT STRIP ── */
+  /* -- GEAR SLOT STRIP -- */
   .gear-strip {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -182,7 +182,7 @@
   }
   .slot-talent.warn-talent { color: var(--hard); }
 
-  /* ── STATS SECTION ── */
+  /* -- STATS SECTION -- */
   .card-stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -214,7 +214,7 @@
     font-size: .72rem; line-height: 1.5; color: var(--hard);
     display: flex; gap: 8px; align-items: flex-start;
   }
-  .warn-banner::before { content: "⚠"; flex-shrink: 0; }
+  .warn-banner::before { content: "?"; flex-shrink: 0; }
 
   /* PLAYSTYLE */
   .card-playstyle { padding: 13px 18px 15px 20px; }
@@ -281,30 +281,126 @@
 // stats: { l, v, exotic }
 
 const BUILDS = [
-  {
-    id: "striker",
+    {
+    id: "striker-sixx",
     cat: "dps",
-    name: "Striker: The Workhorse",
+    name: "Striker: Sixx",
+    subtitle: "Striker build for newer players who need to not be so squishy.",
+    diff: "easy",
+    slots: [
+      { slot:"MASK", set:"Coyote’s Mask", logo:"coyotes", talent:"Pack Instincts", exotic:true },
+      { slot:"CHEST", set:"Uzina Getica", logo:"uzina", talent:"Unbreakable" },
+      { slot:"BACKPACK", set:"Striker's Battlegear", logo:"strikers", talent:"Risk Management" },
+      { slot:"GLOVES", set:"Striker's Battlegear", logo:"strikers" },
+      { slot:"HOLSTER", set:"Striker's Battlegear", logo:"strikers" },
+      { slot:"KNEEPADS", set:"Striker's Battlegear", logo:"strikers" },
+    ],
+    statsLeft: [
+      { l:"Weapons", v:"AR - Killer. High rate of fire. Lexington. \n\nSecondary either AC Shotgun or for those troublesome times Emeline's Guard - P90 for 15% armour on kill over 5 seconds." },
+      { l:"Skills", v:"Shield - Crusader or Striker\nReviver Hive" },
+      { l:"Exotic", v:"St. Elmo's Engine" },
+    ],
+    statsRight: [
+      { l:"Cores", v:"5* Red 1* Blue" },
+    ],
+    playstyle: "You can play from cover and then use the shield when flanked. Unbreakable is a life saver."
+  },
+    {
+    id: "striker-gaming-brigade",
+    cat: "dps",
+    name: "Striker - Gaming Brigade",
+    subtitle: "No Shield - Self Healing",
+    diff: "easy",
+    spec: "Gunner",
+    slots: [
+      { slot:"MASK", set:"Catharsis", logo:"catharsis", talent:"Vicious Cycle", exotic:true },
+      { slot:"CHEST", set:"Palisade Steelworks", logo:"palisade", talent:"Obliterate" },
+      { slot:"BACKPACK", set:"Striker's Battlegear", logo:"strikers", talent:"Risk Management" },
+      { slot:"GLOVES", set:"Striker's Battlegear", logo:"strikers" },
+      { slot:"HOLSTER", set:"Striker's Battlegear", logo:"strikers" },
+      { slot:"KNEEPADS", set:"Striker's Battlegear", logo:"strikers" },
+    ],
+    statsLeft: [
+      { l:"Weapons", v:"AR with Preservation (Lexington)\nLMG or Shotgun" },
+      { l:"Skills", v:"Pulse\nDefender Drone" },
+    ],
+    statsRight: [
+      { l:"Cores", v:"4 * Blue 2 * Red" },
+    ],
+    playstyle: "Keep shooting but you will have a bit more survivability without have the shield."
+  },
+  {
+    id: "striker-memento",
+    cat: "dps",
+    name: "Striker: Memento",
     subtitle: "Sustained AR / LMG — the endgame starting point",
     diff: "easy",
     slots: [
-      { slot:"MASK",    set:"Striker's Battlegear", logo:"striker's" },
-      { slot:"CHEST",   set:"Striker's Battlegear", logo:"striker's", talent:"Obliterate" },
-      { slot:"BACKPACK",set:"Striker's Battlegear", logo:"striker's", talent:"Composure" },
-      { slot:"GLOVES",  set:"Striker's Battlegear", logo:"striker's" },
-      { slot:"HOLSTER", set:"Flex brand",           logo:null, flex:true, flexNote:"Crit Chance / Damage brand" },
-      { slot:"KNEEPADS",set:"Flex brand",           logo:null, flex:true, flexNote:"Crit Chance / Damage brand" },
+      { slot:"MASK", set:"Striker's Battlegear", logo:"strikers" },
+      { slot:"CHEST", set:"Unit Alloys", logo:"unit", talent:"Perfect Obliterate" },
+      { slot:"BACKPACK", set:"Memento", logo:"memento", talent:"Kill Confirmed", exotic:true },
+      { slot:"GLOVES", set:"Striker's Battlegear", logo:"strikers" },
+      { slot:"HOLSTER", set:"Striker's Battlegear", logo:"strikers" },
+      { slot:"KNEEPADS", set:"Striker's Battlegear", logo:"strikers" },
     ],
     statsLeft: [
-      { l:"Weapons",  v:"AR primary · Optimist or Killer talent\nLMG secondary — sustains stacks between AR clips" },
-      { l:"Skills",   v:"Combat Scanner Pulse\nReinforcer Chem Launcher" },
-      { l:"Exotic",   v:"St. Elmo's Engine AR", opt:"optional upgrade — build works without it" },
+      { l:"Weapons", v:"Primary - AR With fast fire rate. Killer.\nSecondary - SMG or ACS-12 " },
+      { l:"Skills", v:"Crusader Shield\nRevive Hive" },
+      { l:"Exotic", v:"St. Elmo's Engine AR" },
     ],
     statsRight: [
-      { l:"Cores",    v:"6× Red (Weapon Damage)" },
-      { l:"Attribs",  v:"Crit Chance to ~60%\nthen stack Crit Damage" },
+      { l:"Cores", v:"6× Red (Weapon Damage)" },
+      { l:"Attribs", v:"Crit Chance to ~60%\nthen stack Crit Damage" },
     ],
-    playstyle: "Sustained fire builds Striker stacks that directly increase weapon damage — the longer you stay on target, the harder you hit. Any break in fire costs stacks so keep the pressure on; the LMG secondary bridges AR clip reloads. Cover-play works fine. The most forgiving endgame DPS build and the best place to start: reliable across all content difficulties with no exotic requirement."
+    playstyle: "Just keep shooting."
+  },
+    {
+    id: "bulwark-sixx",
+    cat: "tank",
+    name: "Bulwark: Sixx",
+    subtitle: "Shield Build for the Assault Global Event",
+    diff: "easy",
+    slots: [
+      { slot:"MASK", set:"Foundry Bulwark", logo:"foundry" },
+      { slot:"CHEST", set:"Foundry Bulwark", logo:"foundry", talent:"Makeshift Repairs" },
+      { slot:"BACKPACK", set:"Foundry Bulwark", logo:"foundry", talent:"Process Refinery" },
+      { slot:"GLOVES", set:"Uzina Getica", logo:"uzina" },
+      { slot:"HOLSTER", set:"Centurion Scabbard", logo:"centurion", talent:"Counter", exotic:true },
+      { slot:"KNEEPADS", set:"Foundry Bulwark", logo:"foundry" },
+    ],
+    statsLeft: [
+      { l:"Weapons", v:"Primary - AR\nSecondary - ACS12" },
+      { l:"Skills", v:"Crusader Shield\nReviver Hive " },
+    ],
+    statsRight: [
+      { l:"Cores", v:"5* Blue 1* Red" },
+    ],
+    playstyle: "This is for getting up close and making use of the double weapon damange from the Assault Event"
+  },
+    {
+    id: "hunter-fury-gaming-brigade",
+    cat: "dps",
+    name: "Hunter Fury - Gaming Brigade",
+    subtitle: "In their face killer",
+    diff: "easy",
+    spec: "Gunner",
+    slots: [
+      { slot:"MASK", set:"Hunter's Fury", logo:"hunters" },
+      { slot:"CHEST", set:"Sokolov Concern", logo:"sokolov", talent:"Intimidate" },
+      { slot:"BACKPACK", set:"Memento", logo:"memento", talent:"Kill Confirmed", exotic:true },
+      { slot:"GLOVES", set:"Hunter's Fury", logo:"hunters" },
+      { slot:"HOLSTER", set:"Hunter's Fury", logo:"hunters" },
+      { slot:"KNEEPADS", set:"Hunter's Fury", logo:"hunters" },
+    ],
+    statsLeft: [
+      { l:"Weapons", v:"SMG\nAR" },
+      { l:"Skills", v:"Pulse\nDefender Drone" },
+      { l:"Exotic", v:"Lady Death" },
+    ],
+    statsRight: [
+      { l:"Cores", v:"3 * Red 3 * Blue" },
+    ],
+    playstyle: "Up close and melt everything."
   },
   {
     id: "heartbreaker",
@@ -438,7 +534,7 @@ const BUILDS = [
   },
 ];
 
-// ── LOGO HELPER ───────────────────────────────────────────
+// -- LOGO HELPER -------------------------------------------
 function logoImg(logoKey, alt, isExotic, isFlex) {
   const wrapClass = ["logo-wrap", isExotic ? "exotic-wrap" : "", isFlex ? "flex-wrap" : ""].filter(Boolean).join(" ");
   if (!logoKey) {
@@ -452,7 +548,7 @@ function logoImg(logoKey, alt, isExotic, isFlex) {
   </div>`;
 }
 
-// ── RENDER ────────────────────────────────────────────────
+// -- RENDER ------------------------------------------------
 function renderBuilds(filter) {
   const grid  = document.getElementById("grid");
   const count = document.getElementById("count");
@@ -466,7 +562,7 @@ function renderBuilds(filter) {
     card.className = "build-card";
     card.dataset.cat = b.cat;
 
-    // ── HEADER
+    // -- HEADER
     const specHtml = b.spec
       ? `<div class="spec-badge">${b.spec}</div>`
       : "";
@@ -483,10 +579,10 @@ function renderBuilds(filter) {
         </div>
       </div>`;
 
-    // ── GEAR SLOT STRIP
+    // -- GEAR SLOT STRIP
     const slotCells = b.slots.map(s => {
       const talentHtml = s.talent
-        ? `<div class="slot-talent${s.warnTalent ? " warn-talent" : ""}">${s.talent}${s.warnTalent ? " ⚠" : ""}</div>`
+        ? `<div class="slot-talent${s.warnTalent ? " warn-talent" : ""}">${s.talent}${s.warnTalent ? " ?" : ""}</div>`
         : "";
       const nameClass = s.exotic ? "exotic-name" : s.flex ? "flex-name" : "";
       const subName = s.flexNote ? `<br><span style="font-size:.57rem;color:var(--muted)">${s.flexNote}</span>` : "";
@@ -500,7 +596,7 @@ function renderBuilds(filter) {
 
     card.innerHTML += `<div class="gear-strip">${slotCells}</div>`;
 
-    // ── STATS
+    // -- STATS
     const leftRows = b.statsLeft.map(s => {
       const val = s.v.replace(/\n/g, "<br>");
       const opt = s.opt ? `<br><span class="muted">${s.opt}</span>` : "";
@@ -524,12 +620,12 @@ function renderBuilds(filter) {
         <div class="stat-col">${rightRows}</div>
       </div>`;
 
-    // ── WARNING
+    // -- WARNING
     if (b.warn) {
       card.innerHTML += `<div class="warn-banner">${b.warn}</div>`;
     }
 
-    // ── PLAYSTYLE
+    // -- PLAYSTYLE
     card.innerHTML += `
       <div class="card-playstyle">
         <div class="ps-label">Playstyle</div>
@@ -540,7 +636,7 @@ function renderBuilds(filter) {
   });
 }
 
-// ── FILTER
+// -- FILTER
 let active = "all";
 document.getElementById("filters").addEventListener("click", e => {
   const btn = e.target.closest(".chip");
