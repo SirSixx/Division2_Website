@@ -6,6 +6,7 @@
    routes them to the handlers in /functions (written Pages-style, so they
    would also work unchanged in a Pages project).
    ============================================================================ */
+import * as health from '../functions/api/health.js';
 import * as manifest from '../functions/api/manifest.js';
 import * as builds from '../functions/api/builds.js';
 import * as data from '../functions/api/data/[key].js';
@@ -19,6 +20,7 @@ import * as adminRestore from '../functions/api/admin/restore.js';
 
 // [path pattern, param names, module]  — first match wins
 const ROUTES = [
+  [/^\/api\/health$/, [], health],
   [/^\/api\/manifest$/, [], manifest],
   [/^\/api\/builds$/, [], builds],
   [/^\/api\/data\/([^/]+)$/, ['key'], data],

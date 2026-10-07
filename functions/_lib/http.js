@@ -19,6 +19,8 @@ export function fail(e) {
   if (e instanceof SupabaseError) {
     console.error(e.message);
     if (e.status === 409) return error(409, 'conflict');
+    if (e.status === 500 && /^missing /.test(e.detail)) return error(503, 'not configured: ' + e.detail + ' (see /api/health)');
+    if (e.status === 401 || e.status === 403) return error(502, 'database rejected the API key (see /api/health)');
     if (e.status >= 400 && e.status < 500 && e.status !== 401 && e.status !== 403) {
       return error(400, e.detail);
     }
