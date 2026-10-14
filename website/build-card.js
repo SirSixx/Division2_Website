@@ -7,7 +7,7 @@
    so the preview can never drift from what the public page shows.
    Requires data.js to be loaded first (uses SHD.esc).
 
-   Build object shape (same as the rows in the Supabase `builds` table):
+   Build object shape (same as the rows in the database `builds` table):
    {
      id, cat: "dps"|"skill"|"tank"|"support", name, subtitle,
      diff: "easy"|"medium"|"hard", spec?,

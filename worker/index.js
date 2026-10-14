@@ -3,33 +3,34 @@
    ----------------------------------------------------------------------------
    Static files in /website are served directly by Cloudflare (see
    wrangler.jsonc → assets). Only /api/* requests reach this code, which
-   routes them to the handlers in /functions (written Pages-style, so they
-   would also work unchanged in a Pages project).
+   routes them to the handlers in /functions (one file per endpoint).
    ============================================================================ */
 import * as health from '../functions/api/health.js';
 import * as manifest from '../functions/api/manifest.js';
 import * as builds from '../functions/api/builds.js';
-import * as data from '../functions/api/data/[key].js';
-import * as adminGate from '../functions/api/admin/_middleware.js';
-import * as adminDatasets from '../functions/api/admin/datasets/[key].js';
-import * as adminBuilds from '../functions/api/admin/builds/index.js';
-import * as adminBuild from '../functions/api/admin/builds/[id].js';
+import * as dataset from '../functions/api/dataset.js';
+import * as adminGate from '../functions/api/admin/access-check.js';
+import * as adminDatasets from '../functions/api/admin/dataset.js';
+import * as adminBuilds from '../functions/api/admin/builds.js';
+import * as adminBuild from '../functions/api/admin/build.js';
 import * as adminExport from '../functions/api/admin/export.js';
-import * as adminHistory from '../functions/api/admin/history/[table]/[key].js';
+import * as adminHistory from '../functions/api/admin/history.js';
 import * as adminRestore from '../functions/api/admin/restore.js';
+import * as adminImport from '../functions/api/admin/import.js';
 
 // [path pattern, param names, module]  — first match wins
 const ROUTES = [
   [/^\/api\/health$/, [], health],
   [/^\/api\/manifest$/, [], manifest],
   [/^\/api\/builds$/, [], builds],
-  [/^\/api\/data\/([^/]+)$/, ['key'], data],
+  [/^\/api\/data\/([^/]+)$/, ['key'], dataset],
   [/^\/api\/admin\/datasets\/([^/]+)$/, ['key'], adminDatasets],
   [/^\/api\/admin\/builds$/, [], adminBuilds],
   [/^\/api\/admin\/builds\/([^/]+)$/, ['id'], adminBuild],
   [/^\/api\/admin\/export$/, [], adminExport],
   [/^\/api\/admin\/history\/([^/]+)\/([^/]+)$/, ['table', 'key'], adminHistory],
   [/^\/api\/admin\/restore$/, [], adminRestore],
+  [/^\/api\/admin\/import$/, [], adminImport],
 ];
 
 const METHOD_EXPORT = { GET: 'onRequestGet', HEAD: 'onRequestGet', POST: 'onRequestPost', PUT: 'onRequestPut', PATCH: 'onRequestPatch', DELETE: 'onRequestDelete' };
@@ -62,7 +63,7 @@ export default {
         return jsonError(400, 'bad URL');
       }
 
-      // Same "context" object Pages Functions receive
+      // The "context" object every handler receives
       const context = {
         request, env, params, data: {},
         waitUntil: p => ctx.waitUntil(p),

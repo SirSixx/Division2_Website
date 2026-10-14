@@ -1,8 +1,6 @@
 # Copy to .dev.vars (git-ignored) for local testing with:
+#   npx wrangler d1 execute shd-toolkit --local --file d1/schema.sql   (once)
 #   npx wrangler dev
-# then open http://localhost:8788
-SUPABASE_URL=https://YOUR-PROJECT.supabase.co
-SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-SUPABASE_SECRET_KEY=sb_secret_...
+# then open http://localhost:8787 and restore a backup in the Build Creator.
 # Skips the Cloudflare Access check, but only for requests to localhost
 DEV_ALLOW_NO_ACCESS=true

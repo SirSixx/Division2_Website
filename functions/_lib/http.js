@@ -1,5 +1,5 @@
 /* Small response helpers shared by every Function. */
-import { SupabaseError } from './supabase.js';
+import { DbError } from './db.js';
 
 export function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
@@ -14,17 +14,14 @@ export function error(status, message) {
   return json({ error: message }, status, NO_STORE);
 }
 
-/** Convert anything thrown into a JSON error response, without leaking keys. */
+/** Convert anything thrown into a JSON error response. */
 export function fail(e) {
-  if (e instanceof SupabaseError) {
+  if (e instanceof DbError) {
     console.error(e.message);
     if (e.status === 409) return error(409, 'conflict');
-    if (e.status === 500 && /^missing /.test(e.detail)) return error(503, 'not configured: ' + e.detail + ' (see /api/health)');
-    if (e.status === 401 || e.status === 403) return error(502, 'database rejected the API key (see /api/health)');
-    if (e.status >= 400 && e.status < 500 && e.status !== 401 && e.status !== 403) {
-      return error(400, e.detail);
-    }
-    return error(502, 'database error');
+    if (e.status === 400) return error(400, e.detail);
+    if (/^(missing DB binding|tables not created)/.test(e.detail)) return error(503, 'not configured: ' + e.detail + ' (see /api/health)');
+    return error(502, 'database error (see /api/health)');
   }
   console.error(e && e.stack ? e.stack : e);
   return error(500, 'server error');
@@ -38,8 +35,8 @@ export async function readJSON(request) {
 /**
  * Serve a GET from Cloudflare's edge cache when possible.
  * Only used for URLs that carry a ?v= version, which never change content,
- * so they can be cached for a year. (The Cache API is a no-op on *.pages.dev
- * preview hostnames — it works on your custom domain.)
+ * so they can be cached for a year. (The Cache API only works on your custom
+ * domain, not on workers.dev — elsewhere it simply does nothing.)
  */
 export async function cached(context, produce) {
   const { request } = context;

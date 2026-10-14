@@ -3,11 +3,11 @@
    → { version, updated_at }
    expectedVersion 0 creates the build (409 if the id is taken); otherwise the
    save only goes through if the stored version still matches (409 if not). */
-import { sb, q } from '../../../_lib/supabase.js';
-import { json, error, fail, readJSON, NO_STORE } from '../../../_lib/http.js';
+import { first } from '../../_lib/db.js';
+import { json, error, fail, readJSON, NO_STORE } from '../../_lib/http.js';
 
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,99}$/;
-const CATEGORIES = ['dps', 'skill', 'tank', 'support'];   // must match the table's check constraint
+const CATEGORIES = ['dps', 'skill', 'tank', 'support'];   // must match the table's CHECK constraint
 const STATUSES = ['draft', 'published', 'archived'];
 
 export async function onRequestPut({ params, env, request, data: ctx }) {
@@ -26,24 +26,25 @@ export async function onRequestPut({ params, env, request, data: ctx }) {
   if (!Number.isInteger(expected) || expected < 0) return error(400, 'expectedVersion must be a whole number (0 = create)');
 
   // Keep the row's id/category and the object's id/cat in step — the public page filters on data.cat.
-  const doc = { ...data, id, cat: category };
+  const doc = JSON.stringify({ ...data, id, cat: category });
+  const now = new Date().toISOString();
 
   try {
-    let rows;
+    let row;
     if (expected === 0) {
-      rows = await sb(env, 'secret', 'builds', {
-        method: 'POST',
-        prefer: 'return=representation',
-        body: { id, category, status, sort_order: sortOrder, data: doc, updated_by: ctx.user },
-      });
+      row = await first(env,
+        `INSERT INTO builds (id, category, status, sort_order, data, updated_at, updated_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING version, updated_at`,
+        id, category, status, sortOrder, doc, now, ctx.user);
     } else {
-      rows = await sb(env, 'secret', `builds?id=eq.${q(id)}&version=eq.${expected}`, {
-        method: 'PATCH',
-        prefer: 'return=representation',
-        body: { category, status, sort_order: sortOrder, data: doc, updated_by: ctx.user },
-      });
+      row = await first(env,
+        `UPDATE builds SET category = ?, status = ?, sort_order = ?, data = ?, version = version + 1,
+                updated_at = ?, updated_by = ?
+         WHERE id = ? AND version = ?
+         RETURNING version, updated_at`,
+        category, status, sortOrder, doc, now, ctx.user, id, expected);
     }
-    if (!rows || !rows.length) return error(409, 'conflict');
-    return json({ version: rows[0].version, updated_at: rows[0].updated_at }, 200, NO_STORE);
+    if (!row) return error(409, 'conflict');
+    return json({ version: row.version, updated_at: row.updated_at }, 200, NO_STORE);
   } catch (e) { return fail(e); }
 }

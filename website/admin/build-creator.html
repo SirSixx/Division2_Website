@@ -13,7 +13,7 @@
    This is an AUTHORING TOOL, not a public reference page. It lives at
    /admin/build-creator.html behind Cloudflare Access, and reads/writes
    everything through the admin API (/api/admin/*), which stores it in
-   Supabase. Nothing is kept in localStorage any more.
+   Cloudflare D1. Nothing is kept in localStorage any more.
      - Gear sets / brand sets / named items → datasets ref-gearsets,
        ref-brandsets, ref-named (unpublished; admin only)
      - Builds → the builds table, one row each, status draft/published
@@ -305,8 +305,9 @@
     <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:640px">
       Everything you import or edit here is saved to the server automatically, and every change keeps the previous
       version in the database's history. Export a full backup (all datasets and builds) now and then and commit it to
-      the repo's <code>website/snapshot/</code> folder. Restore accepts either that export or an old local-storage
-      backup file from before the migration; it replaces the gear / brand / named databases (builds are not touched).
+      the repo's <code>website/snapshot/</code> folder. Restoring a full export brings back <b>everything</b> in it:
+      the site's datasets and all builds (anything replaced is kept in the history). An old local-storage backup from
+      before the migration only holds the gear / brand / named databases, so only those are replaced.
     </p>
     <div class="btnrow" style="margin-top:14px">
       <button class="btn primary" id="export-backup">Export Full Backup (.json)</button>
@@ -851,8 +852,17 @@ document.getElementById("restore-backup").addEventListener("change", e => {
   readFile(e, txt => {
     try {
       const parsed = JSON.parse(txt);
-      // Accept a full server export ({ datasets: { "ref-gearsets": { data } … } })
-      // or an old pre-migration local-storage backup ({ gearsets, brandsets, named }).
+      // Full export (from "Export Full Backup", any version): send the whole file to the server.
+      if (parsed && parsed.datasets && Array.isArray(parsed.builds)) {
+        const nd = Object.keys(parsed.datasets).length, nb = parsed.builds.length;
+        if (!confirm(`Restore this backup? It contains ${nd} datasets and ${nb} builds.\n\nEverything in the file replaces what's on the server (previous versions are kept in the history). Things not in the file are left alone.`)) return;
+        api("POST", "/import", parsed).then(r => {
+          alert(`Restored ${r.datasets} datasets and ${r.builds} builds.` + (r.skipped.length ? `\n\nSkipped (invalid): ${r.skipped.join(", ")}` : "") + "\n\nThe page will now reload.");
+          location.reload();
+        }).catch(err => alert("Restore failed: " + err.message));
+        return;
+      }
+      // Old pre-migration local-storage backup ({ gearsets, brandsets, named }).
       const fromExport = k => parsed.datasets && parsed.datasets[DB_KEYS[k]] && parsed.datasets[DB_KEYS[k]].data;
       const pick = k => fromExport(k) || parsed[k] || [];
       if (!confirm("This replaces the gear set, brand set and named item databases with the backup file (builds are not touched). Continue?")) return;

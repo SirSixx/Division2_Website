@@ -13,7 +13,18 @@
     "run_worker_first": ["/api/*"]
   },
 
-  // Keep the variables set in the dashboard (Settings → Variables and Secrets).
+  // The database. Create it in the dashboard (Storage & Databases → D1 →
+  // Create database, name "shd-toolkit") and paste its Database ID below.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shd-toolkit",
+      "database_id": "8f15a4cd-7133-4d43-b039-297a92358a4f"
+    }
+  ],
+
+  // Keep the variables set in the dashboard (Settings → Variables and Secrets:
+  // ACCESS_TEAM_DOMAIN and ACCESS_AUD).
   // Without this, every deploy would wipe the plain-text ones.
   "keep_vars": true,
 

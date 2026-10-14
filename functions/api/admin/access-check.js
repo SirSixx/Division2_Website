@@ -5,7 +5,7 @@
    you through after you log in. It then adds a signed token
    (Cf-Access-Jwt-Assertion) to each request. This file verifies that token
    itself, so even if the Access application were ever misconfigured, the
-   admin API (and the Supabase secret key behind it) stays locked.
+   admin API (the only way to change the database) stays locked.
 
    Environment variables:
      ACCESS_TEAM_DOMAIN   e.g. yourteam.cloudflareaccess.com

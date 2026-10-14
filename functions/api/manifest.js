@@ -2,7 +2,7 @@
    Tells pages which version of each dataset (and of the published builds)
    is current, so they can request immutable, versioned URLs.
    Cached for 30 s — that is the delay between "Publish" and the live site. */
-import { sb } from '../_lib/supabase.js';
+import { all } from '../_lib/db.js';
 import { json, fail, cached } from '../_lib/http.js';
 
 // Short, stable fingerprint of the published builds (FNV-1a, hex).
@@ -20,8 +20,8 @@ export async function onRequestGet(context) {
     try {
       const { env } = context;
       const [datasets, builds] = await Promise.all([
-        sb(env, 'public', 'datasets?select=key,version&published=is.true'),
-        sb(env, 'public', 'builds?select=id,version&status=eq.published&order=id.asc'),
+        all(env, 'SELECT key, version FROM datasets WHERE published = 1'),
+        all(env, "SELECT id, version FROM builds WHERE status = 'published' ORDER BY id"),
       ]);
       const versions = {};
       for (const d of datasets) versions[d.key] = d.version;
