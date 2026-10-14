@@ -97,6 +97,22 @@
     color: var(--text); font-size: .78rem; font-family: inherit;
   }
   .field textarea { resize: vertical; min-height: 54px; }
+
+  /* ── RICH TEXT EDITOR (Playstyle) ── */
+  .rte { border: 1px solid var(--line-bright); background: var(--panel-2); }
+  .rte:focus-within { border-color: var(--amber); }
+  .rte-bar { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 5px 6px; border-bottom: 1px solid var(--line); }
+  .rte-bar button { min-width: 30px; padding: 3px 8px; background: transparent; border: 1px solid var(--line-bright); color: var(--text); font-family: inherit; font-size: .74rem; cursor: pointer; }
+  .rte-bar button:hover { border-color: var(--amber); color: var(--amber); }
+  .rte-bar button[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: var(--bg); }
+  .rte-sep { width: 1px; align-self: stretch; background: var(--line-bright); margin: 2px 3px; }
+  .rte-hint { margin-left: auto; font-size: .58rem; letter-spacing: .06em; color: var(--muted); }
+  .rte-area { min-height: 110px; max-height: 380px; overflow-y: auto; padding: 8px 10px; outline: none; font-size: .78rem; line-height: 1.6; color: var(--text); }
+  .rte-area.is-empty > p:first-child::before { content: "Describe how the build plays…"; color: var(--muted); pointer-events: none; }
+  .rte-area p { margin: 0 0 .7em; }
+  .rte-area ul { margin: 0 0 .7em; padding-left: 1.25em; list-style: disc; }
+  .rte-area li { margin: 0 0 .3em; }
+  .rte-area > :last-child { margin-bottom: 0; }
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .field-check { display: flex; align-items: center; gap: 7px; font-size: .74rem; color: var(--text); }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
@@ -190,6 +206,14 @@
   .card-playstyle { padding: 13px 18px 15px 20px; }
   .ps-label { font-family: var(--display); font-weight: 500; letter-spacing: .16em; text-transform: uppercase; font-size: .56rem; color: var(--amber); margin-bottom: 7px; }
   .ps-text { font-size: .76rem; line-height: 1.65; color: #cfd3d8; margin: 0; }
+  .ps-text p { margin: 0 0 .7em; }
+  .ps-text ul { margin: 0 0 .7em; padding-left: 1.25em; list-style: disc; }
+  .ps-text li { margin: 0 0 .3em; }
+  .ps-text li::marker { color: var(--amber); }
+  .ps-text > :last-child { margin-bottom: 0; }
+  .ps-text strong { color: #eef0f3; font-weight: 700; }
+  .ps-text em { font-style: italic; }
+  .ps-text u { text-decoration: underline; text-underline-offset: 2px; }
 
   footer { margin-top: 40px; }
 </style>
@@ -956,11 +980,77 @@ function buildCreatorForm() {
         <div class="field"><label>Attributes</label><textarea id="cb-attribs">${esc(cb.attribs)}</textarea></div>
       </div>
       <div class="field"><label>Warning banner (optional)</label><textarea id="cb-warn">${esc(cb.warn)}</textarea></div>
-      <div class="field"><label>Playstyle</label><textarea id="cb-playstyle" style="min-height:110px">${esc(cb.playstyle)}</textarea></div>
+      <div class="field"><label>Playstyle</label>
+        <div class="rte">
+          <div class="rte-bar" id="cb-playstyle-bar">
+            <button type="button" data-cmd="bold" title="Bold (Ctrl+B)" aria-pressed="false"><b>B</b></button>
+            <button type="button" data-cmd="italic" title="Italic (Ctrl+I)" aria-pressed="false"><i>I</i></button>
+            <button type="button" data-cmd="underline" title="Underline (Ctrl+U)" aria-pressed="false"><u>U</u></button>
+            <span class="rte-sep"></span>
+            <button type="button" data-cmd="insertUnorderedList" title="Bullet list" aria-pressed="false">• List</button>
+            <span class="rte-hint">Enter = new paragraph · Shift+Enter = line break</span>
+          </div>
+          <div class="rte-area" id="cb-playstyle" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Playstyle" data-placeholder="Describe how the build plays…"></div>
+        </div>
+      </div>
     </div>
   `;
   renderSlotEditors();
   el.querySelectorAll("input,select,textarea").forEach(inp => inp.addEventListener("input", syncFormToModel));
+  setupPlaystyleEditor();
+}
+
+/* ---- Playstyle rich-text editor ----
+   A small contenteditable with a toolbar. The model (cb.playstyle) always holds
+   the cleaned subset produced by SHDBuildCard.cleanRich() — paragraphs, bullets,
+   bold, italic, underline, line breaks — never the raw editor HTML. Pasted text
+   comes in as plain text so nothing foreign (fonts, colours, scripts) is imported. */
+function setupPlaystyleEditor() {
+  const area = document.getElementById("cb-playstyle");
+  const bar = document.getElementById("cb-playstyle-bar");
+  if (!area || !bar) return;
+  // an empty editor always holds one empty <p>, so even the first line is a real paragraph
+  const EMPTY = "<p><br></p>";
+  area.innerHTML = SHDBuildCard.cleanRich(cb.playstyle) || EMPTY;   // also upgrades old plain-text playstyles
+  try { document.execCommand("defaultParagraphSeparator", false, "p"); } catch (e) {}
+  function updateEmpty() {
+    if (!area.firstChild) {                                  // select-all + delete can leave nothing at all
+      area.innerHTML = EMPTY;
+      const r = document.createRange(); r.setStart(area.firstChild, 0); r.collapse(true);
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    }
+    area.classList.toggle("is-empty", !area.textContent.trim() && !area.querySelector("li"));
+  }
+  updateEmpty();
+
+  const buttons = [...bar.querySelectorAll("button[data-cmd]")];
+  function refreshButtons() {
+    const sel = window.getSelection();
+    const inside = sel && sel.rangeCount && area.contains(sel.anchorNode);
+    buttons.forEach(b => {
+      let on = false;
+      if (inside) { try { on = document.queryCommandState(b.dataset.cmd); } catch (e) {} }
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  // mousedown (not click) + preventDefault so the text selection isn't lost when a button is pressed
+  buttons.forEach(b => {
+    b.addEventListener("mousedown", e => e.preventDefault());
+    b.addEventListener("click", () => {
+      area.focus();
+      document.execCommand(b.dataset.cmd, false, null);
+      syncFormToModel(); refreshButtons();
+    });
+  });
+  area.addEventListener("input", () => { updateEmpty(); syncFormToModel(); });
+  area.addEventListener("keyup", refreshButtons);
+  area.addEventListener("mouseup", refreshButtons);
+  area.addEventListener("focus", refreshButtons);
+  area.addEventListener("paste", e => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+    document.execCommand("insertHTML", false, SHDBuildCard.cleanRich(text));
+  });
 }
 
 function refreshCreatorDropdowns() {
@@ -1094,7 +1184,9 @@ function syncFormToModel() {
   cb.weapons = fieldVal("cb-weapons"); cb.skills = fieldVal("cb-skills");
   cb.exoticNote = fieldVal("cb-exoticNote"); cb.exoticOpt = fieldVal("cb-exoticOpt");
   cb.cores = fieldVal("cb-cores"); cb.attribs = fieldVal("cb-attribs");
-  cb.warn = fieldVal("cb-warn"); cb.playstyle = fieldVal("cb-playstyle");
+  cb.warn = fieldVal("cb-warn");
+  const ps = document.getElementById("cb-playstyle");
+  if (ps) cb.playstyle = SHDBuildCard.cleanRich(ps.innerHTML);
   renderPreview();
 }
 
@@ -1164,7 +1256,7 @@ function loadBuildIntoCreator(b, meta) {
   fresh._status = meta ? meta.status : "draft";
   fresh.id = b.id || ""; fresh.cat = b.cat || "dps"; fresh.name = b.name || "";
   fresh.subtitle = b.subtitle || ""; fresh.diff = b.diff || "easy"; fresh.spec = b.spec || "";
-  fresh.warn = b.warn || ""; fresh.playstyle = b.playstyle || "";
+  fresh.warn = b.warn || ""; fresh.playstyle = SHDBuildCard.cleanRich(b.playstyle);   // old plain text → paragraphs
   (b.statsLeft || []).forEach(row => {
     if (row.l === "Weapons") fresh.weapons = row.v || "";
     else if (row.l === "Skills") fresh.skills = row.v || "";
