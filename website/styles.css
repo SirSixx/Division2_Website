@@ -74,9 +74,9 @@ footer b{color:var(--muted)}
   --medium: #ffb340;
   --hard:   #e05252;
 
-  --exotic-color: #e8c84a;
-  --exotic-bg:    rgba(232,200,74,.10);
-  --exotic-border:rgba(232,200,74,.40);
+  --exotic-color: #ff6f36;
+  --exotic-bg:    rgba(255,111,54,.10);
+  --exotic-border:rgba(255,111,54,.40);
   --named-color:  #4fc3d9;
   --named-bg:     rgba(79,195,217,.07);
   --named-border: rgba(79,195,217,.45);
@@ -178,7 +178,7 @@ footer b{color:var(--muted)}
 .logo-wrap.exotic-wrap {
   border-color: var(--exotic-border);
   background: var(--exotic-bg);
-  box-shadow: 0 0 12px rgba(232,200,74,.10);
+  box-shadow: 0 0 12px rgba(255,111,54,.10);
 }
 .logo-wrap.flex-wrap {
   border-style: dashed;
