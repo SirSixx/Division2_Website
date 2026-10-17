@@ -131,72 +131,7 @@
   .saved-builds { margin-bottom: 22px; }
   .saved-builds input[type="number"] { background: var(--panel-2); color: var(--text); border: 1px solid var(--line-bright); font-family: var(--mono); font-size: .72rem; padding: 4px 6px; }
 
-  /* ── card preview (mirrors division2-builds.html exactly) ── */
-  :root {
-    --dps: #e05252; --dps-bg: rgba(224,82,82,.10); --dps-border: rgba(224,82,82,.35);
-    --skill: #ffb340; --skill-bg: rgba(255,179,64,.10); --skill-border: rgba(255,179,64,.35);
-    --tank: #4a9de0; --tank-bg: rgba(74,157,224,.10); --tank-border: rgba(74,157,224,.35);
-    --support: #9b7fe0; --support-bg: rgba(155,127,224,.10); --support-border: rgba(155,127,224,.35);
-    --easy: #54c06e; --medium: #ffb340; --hard: #e05252;
-    --exotic-color: #e8c84a; --exotic-bg: rgba(232,200,74,.10); --exotic-border: rgba(232,200,74,.40);
-    --named-color: #4fc3d9; --named-bg: rgba(79,195,217,.07); --named-border: rgba(79,195,217,.45);
-  }
-  .build-card { background: var(--panel); border: 1px solid var(--line); position: relative; overflow: hidden; }
-  .build-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
-  .build-card[data-cat="dps"]::before { background: var(--dps); }
-  .build-card[data-cat="skill"]::before { background: var(--skill); }
-  .build-card[data-cat="tank"]::before { background: var(--tank); }
-  .build-card[data-cat="support"]::before { background: var(--support); }
-  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 18px 13px 20px; border-bottom: 1px solid var(--line); }
-  .head-left { flex: 1; min-width: 0; }
-  .head-badges { display: flex; gap: 7px; align-items: center; margin-bottom: 7px; }
-  .cat-badge { font-family: var(--display); font-weight: 600; letter-spacing: .18em; text-transform: uppercase; font-size: .58rem; padding: 3px 8px; border: 1px solid; display: inline-block; }
-  .cat-badge.dps { color: var(--dps); background: var(--dps-bg); border-color: var(--dps); }
-  .cat-badge.skill { color: var(--skill); background: var(--skill-bg); border-color: var(--skill); }
-  .cat-badge.tank { color: var(--tank); background: var(--tank-bg); border-color: var(--tank); }
-  .cat-badge.support { color: var(--support); background: var(--support-bg); border-color: var(--support); }
-  .diff-badge { font-family: var(--display); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; font-size: .58rem; padding: 3px 9px; border: 1px solid; display: inline-flex; align-items: center; gap: 5px; }
-  .diff-badge::before { content: "●"; font-size: .45rem; }
-  .diff-badge.easy { color: var(--easy); border-color: var(--easy); background: rgba(84,192,110,.08); }
-  .diff-badge.medium { color: var(--medium); border-color: var(--medium); background: rgba(255,179,64,.08); }
-  .diff-badge.hard { color: var(--hard); border-color: var(--hard); background: rgba(224,82,82,.08); }
-  .build-name { font-family: var(--display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 1.22rem; margin: 0; line-height: 1.1; }
-  .build-subtitle { font-size: .68rem; letter-spacing: .08em; color: var(--muted); margin-top: 4px; }
-  .spec-badge { font-family: var(--display); font-weight: 500; letter-spacing: .12em; text-transform: uppercase; font-size: .58rem; padding: 3px 8px; border: 1px solid var(--amber-dim); color: var(--amber); background: rgba(255,140,26,.08); display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; }
-  .spec-badge::before { content: "SPEC"; font-size: .5rem; color: var(--amber-dim); margin-right: 3px; }
-  .gear-strip { display: grid; grid-template-columns: repeat(6, 1fr); border-bottom: 1px solid var(--line); overflow-x: auto; }
-  .slot-cell { display: flex; flex-direction: column; align-items: center; padding: 12px 8px 11px; border-right: 1px solid var(--line); text-align: center; gap: 7px; min-width: 100px; }
-  .slot-cell:last-child { border-right: none; }
-  .slot-label { font-family: var(--display); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; font-size: .54rem; color: var(--muted); line-height: 1; }
-  .logo-wrap { width: 52px; height: 52px; flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-bright); background: var(--panel-2); overflow: hidden; }
-  .logo-wrap.exotic-wrap { border-color: var(--exotic-border); background: var(--exotic-bg); box-shadow: 0 0 12px rgba(232,200,74,.10); }
-  .logo-wrap.flex-wrap { border-style: dashed; border-color: var(--line-bright); opacity: .7; }
-  .logo-wrap img { width: 100%; height: 100%; object-fit: contain; filter: brightness(1.1) saturate(1.1); display: block; }
-  .logo-placeholder { font-family: var(--display); font-weight: 700; font-size: 1.1rem; color: var(--line-bright); letter-spacing: .05em; }
-  .slot-set-name { font-size: .62rem; line-height: 1.3; color: var(--text); max-width: 100%; word-break: break-word; }
-  .slot-set-name.exotic-name { color: var(--exotic-color); }
-  .slot-cell.named { background: var(--named-bg); box-shadow: inset 0 3px 0 var(--named-color); }
-  .named-tag { font-family: var(--display); font-weight: 500; letter-spacing: .18em; text-transform: uppercase; font-size: .5rem; line-height: 1; color: var(--bg); background: var(--named-color); padding: 3px 8px; }
-  .named-tag.ghost { visibility: hidden; }
-  .logo-wrap.named-wrap { border-color: var(--named-border); background: var(--named-bg); }
-  .slot-set-name.named-name { font-family: var(--display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: .78rem; line-height: 1.15; }
-  .slot-brand { font-size: .58rem; color: var(--muted); line-height: 1.2; margin-top: -3px; }
-  .slot-set-name.flex-name { color: var(--muted); font-style: italic; }
-  .slot-talent { font-size: .58rem; letter-spacing: .06em; color: var(--amber); line-height: 1.2; border-top: 1px dashed var(--line-bright); padding-top: 5px; width: 100%; font-family: var(--display); font-weight: 500; text-transform: uppercase; }
-  .slot-talent.warn-talent { color: var(--hard); }
-  .card-stats { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); padding: 0; }
-  .stat-col { padding: 12px 18px 12px 20px; }
-  .stat-col:first-child { border-right: 1px solid var(--line); }
-  .stat-row { display: grid; grid-template-columns: 80px 1fr; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--line); align-items: baseline; }
-  .stat-row:last-child { border-bottom: none; }
-  .stat-label { font-family: var(--display); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; font-size: .56rem; color: var(--amber); flex-shrink: 0; }
-  .stat-val { font-size: .74rem; line-height: 1.5; color: var(--text); }
-  .stat-val .muted { color: var(--muted); font-size: .68rem; }
-  .warn-banner { padding: 9px 18px 9px 20px; background: rgba(224,82,82,.07); border-bottom: 1px solid rgba(224,82,82,.22); font-size: .72rem; line-height: 1.5; color: var(--hard); display: flex; gap: 8px; align-items: flex-start; }
-  .warn-banner::before { content: "⚠"; flex-shrink: 0; }
-  .card-playstyle { padding: 13px 18px 15px 20px; }
-  .ps-label { font-family: var(--display); font-weight: 500; letter-spacing: .16em; text-transform: uppercase; font-size: .56rem; color: var(--amber); margin-bottom: 7px; }
-  .ps-text { font-size: .76rem; line-height: 1.65; color: #cfd3d8; margin: 0; }
+  /* card preview styles live in ../styles.css (shared with division2-builds.html) */
 
   footer { margin-top: 40px; }
 </style>
@@ -1234,6 +1169,7 @@ function cbToBuild(c) {
     if (s.talent) o.talent = s.talent;
     if (s.exotic) o.exotic = true;
     if (s.mode === "named" && s.namedItem) { o.named = true; o.item = s.namedItem; }
+    if (s.mode === "exotic" && s.namedItem) o.item = s.namedItem;
     const os = orig && (orig.slots || []).find(x => x.slot === s.slot);
     if (os && !os.flex && os.set === s.set) {
       if (os.flexNote) o.flexNote = os.flexNote;
