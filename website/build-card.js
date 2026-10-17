@@ -32,15 +32,24 @@
 
   function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
 
+  // Exotic slots with no logo of their own (or whose logo file fails to load) fall back
+  // to logos/exotic.png instead of the letter placeholder.
   function logoImg(logoKey, alt, isExotic, isFlex, logoBase, isNamed) {
     const wrapClass = ['logo-wrap', isExotic ? 'exotic-wrap' : (isNamed ? 'named-wrap' : ''), isFlex ? 'flex-wrap' : ''].filter(Boolean).join(' ');
+    const fallback = (isExotic && !isFlex) ? logoBase + 'exotic.png' : '';
     if (!logoKey) {
+      if (fallback) {
+        return '<div class="' + wrapClass + '"><img class="logo-fallback" src="' + esc(fallback) + '" alt="Exotic"></div>';
+      }
       return '<div class="' + wrapClass + '"><span class="logo-placeholder">?</span></div>';
     }
     const src = logoBase + encodeURIComponent(logoKey) + '.png';
     const initial = esc((alt || '?')[0].toUpperCase());
+    const onerr = fallback
+      ? "if(!this.dataset.fb){this.dataset.fb=1;this.classList.add('logo-fallback');this.src='" + esc(fallback) + "';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}"
+      : "this.style.display='none';this.nextElementSibling.style.display='flex';";
     return '<div class="' + wrapClass + '">' +
-      '<img src="' + esc(src) + '" alt="' + esc(alt) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
+      '<img src="' + esc(src) + '" alt="' + esc(alt) + '" onerror="' + onerr + '">' +
       '<span class="logo-placeholder" style="display:none">' + initial + '</span>' +
       '</div>';
   }

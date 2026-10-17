@@ -191,6 +191,7 @@ footer b{color:var(--muted)}
   filter: brightness(1.1) saturate(1.1);
   display: block;
 }
+.logo-wrap img.logo-fallback { padding: 5px; filter: none; }
 .logo-placeholder {
   font-family: var(--display); font-weight: 700;
   font-size: 1.1rem; color: var(--line-bright);
