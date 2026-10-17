@@ -11,7 +11,8 @@
    {
      id, cat: "dps"|"skill"|"tank"|"support", name, subtitle,
      diff: "easy"|"medium"|"hard", spec?,
-     slots: [{ slot, set, logo, talent?, exotic?, flex?, flexNote?, warnTalent? }],
+     slots: [{ slot, set, logo, talent?, exotic?, flex?, flexNote?, warnTalent?, named?, item? }],
+     // named: true + item: "Item Name" marks a named item (set holds its brand)
      statsLeft:  [{ l, v, opt? }],      // v may contain \n line breaks
      statsRight: [{ l, v }],
      warn?, playstyle
@@ -30,8 +31,8 @@
 
   function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
 
-  function logoImg(logoKey, alt, isExotic, isFlex, logoBase) {
-    const wrapClass = ['logo-wrap', isExotic ? 'exotic-wrap' : '', isFlex ? 'flex-wrap' : ''].filter(Boolean).join(' ');
+  function logoImg(logoKey, alt, isExotic, isFlex, logoBase, isNamed) {
+    const wrapClass = ['logo-wrap', isExotic ? 'exotic-wrap' : (isNamed ? 'named-wrap' : ''), isFlex ? 'flex-wrap' : ''].filter(Boolean).join(' ');
     if (!logoKey) {
       return '<div class="' + wrapClass + '"><span class="logo-placeholder">?</span></div>';
     }
@@ -63,15 +64,33 @@
       '</div></div>';
 
     // -- GEAR SLOT STRIP
+    const anyNamed = (b.slots || []).some(function (s) { return s.named && s.item && !s.flex; });
     const slotCells = (b.slots || []).map(function (s) {
+      const isNamed = !!(s.named && s.item && !s.flex);
       const talentHtml = s.talent
         ? '<div class="slot-talent' + (s.warnTalent ? ' warn-talent' : '') + '">' + esc(s.talent) + (s.warnTalent ? ' ?' : '') + '</div>'
         : '';
       const nameClass = s.exotic ? 'exotic-name' : s.flex ? 'flex-name' : '';
       const subName = s.flexNote ? '<br><span style="font-size:.57rem;color:var(--muted)">' + esc(s.flexNote) + '</span>' : '';
+      if (isNamed) {
+        // Named item: tag on top, item name as the heading, brand beneath
+        // (brand is omitted for a standalone named item whose brand is its own name)
+        const brandHtml = (s.set && s.set !== s.item) ? '<div class="slot-brand">' + esc(s.set) + '</div>' : '';
+        return '<div class="slot-cell named">' +
+          '<div class="named-tag">Named</div>' +
+          '<div class="slot-label">' + esc(s.slot) + '</div>' +
+          logoImg(s.logo, s.set || s.item, s.exotic, false, logoBase, true) +
+          '<div class="slot-set-name named-name ' + (s.exotic ? 'exotic-name' : '') + '">' + esc(s.item) + '</div>' +
+          brandHtml +
+          talentHtml +
+          '</div>';
+      }
+      // invisible tag keeps rows aligned when another slot in the build is named
+      const ghost = anyNamed ? '<div class="named-tag ghost" aria-hidden="true">Named</div>' : '';
       return '<div class="slot-cell">' +
+        ghost +
         '<div class="slot-label">' + esc(s.slot) + '</div>' +
-        logoImg(s.logo, s.set, s.exotic, s.flex, logoBase) +
+        logoImg(s.logo, s.set, s.exotic, s.flex, logoBase, false) +
         '<div class="slot-set-name ' + nameClass + '">' + esc(s.set) + subName + '</div>' +
         talentHtml +
         '</div>';

@@ -139,6 +139,7 @@
     --support: #9b7fe0; --support-bg: rgba(155,127,224,.10); --support-border: rgba(155,127,224,.35);
     --easy: #54c06e; --medium: #ffb340; --hard: #e05252;
     --exotic-color: #e8c84a; --exotic-bg: rgba(232,200,74,.10); --exotic-border: rgba(232,200,74,.40);
+    --named-color: #4fc3d9; --named-bg: rgba(79,195,217,.07); --named-border: rgba(79,195,217,.45);
   }
   .build-card { background: var(--panel); border: 1px solid var(--line); position: relative; overflow: hidden; }
   .build-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
@@ -174,6 +175,12 @@
   .logo-placeholder { font-family: var(--display); font-weight: 700; font-size: 1.1rem; color: var(--line-bright); letter-spacing: .05em; }
   .slot-set-name { font-size: .62rem; line-height: 1.3; color: var(--text); max-width: 100%; word-break: break-word; }
   .slot-set-name.exotic-name { color: var(--exotic-color); }
+  .slot-cell.named { background: var(--named-bg); box-shadow: inset 0 3px 0 var(--named-color); }
+  .named-tag { font-family: var(--display); font-weight: 500; letter-spacing: .18em; text-transform: uppercase; font-size: .5rem; line-height: 1; color: var(--bg); background: var(--named-color); padding: 3px 8px; }
+  .named-tag.ghost { visibility: hidden; }
+  .logo-wrap.named-wrap { border-color: var(--named-border); background: var(--named-bg); }
+  .slot-set-name.named-name { font-family: var(--display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: .78rem; line-height: 1.15; }
+  .slot-brand { font-size: .58rem; color: var(--muted); line-height: 1.2; margin-top: -3px; }
   .slot-set-name.flex-name { color: var(--muted); font-style: italic; }
   .slot-talent { font-size: .58rem; letter-spacing: .06em; color: var(--amber); line-height: 1.2; border-top: 1px dashed var(--line-bright); padding-top: 5px; width: 100%; font-family: var(--display); font-weight: 500; text-transform: uppercase; }
   .slot-talent.warn-talent { color: var(--hard); }
@@ -1226,6 +1233,7 @@ function cbToBuild(c) {
     const o = { slot: s.slot, set: s.set, logo: s.logo || null };
     if (s.talent) o.talent = s.talent;
     if (s.exotic) o.exotic = true;
+    if (s.mode === "named" && s.namedItem) { o.named = true; o.item = s.namedItem; }
     const os = orig && (orig.slots || []).find(x => x.slot === s.slot);
     if (os && !os.flex && os.set === s.set) {
       if (os.flexNote) o.flexNote = os.flexNote;
